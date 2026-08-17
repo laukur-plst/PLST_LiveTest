@@ -11,6 +11,17 @@
 *.sln.docstates
 *.env
 
+
+__pycache__/
+*.pyc
+.pytest_cache/
+data/*.sqlite3
+data/import_token.txt
+data/uploads/
+
+
+
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

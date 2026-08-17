@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Plandata Svarbasen</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbjælke">
+      <div class="brandblok">
+        <img class="logo" src="/logo.png" alt="Plandata.dk">
+        <div>
+          <p class="eyebrow">Plandata Support</p>
+          <h1>Svarbasen</h1>
+        </div>
+      </div>
+      <div class="headerhandlinger">
+        <nav class="hovednav" aria-label="Primær navigation">
+          <a class="navlink aktiv" href="/">Svarbase</a>
+          <a class="navlink" href="/kilder.html">Kilder</a>
+          <a class="navlink" href="/svarbank.html">Svarbank</a>
+          <a class="navlink" href="/gis.html">GIS</a>
+        </nav>
+        <span id="llmStatus" class="statuspill">Klar</span>
+      </div>
+    </header>
+
+    <main class="arbejdsflade">
+      <section class="panel forespørgsel">
+        <div class="paneltop">
+          <div>
+            <p class="eyebrow">Henvendelse</p>
+            <h2>Svarudkast</h2>
+          </div>
+          <label class="kontakt">
+            <input id="nyMedarbejder" type="checkbox">
+            <span>Ny medarbejder</span>
+            <span
+              class="infoikon"
+              tabindex="0"
+              title="Når feltet er slået til, beder svarbasen modellen om at forklare intent, kildevalg og usikkerheder mere pædagogisk, så svaret også kan bruges til oplæring."
+              aria-label="Ny medarbejder betyder, at svarbasen giver en mere pædagogisk oplæringsforklaring.">i</span>
+          </label>
+        </div>
+
+        <label for="svarmodus">Svarmodus</label>
+        <select id="svarmodus">
+          <option value="supportfagligt_svar">Supportfagligt svar</option>
+          <option value="bed_om_flere_oplysninger">Bed om flere oplysninger</option>
+          <option value="intern_vurdering">Intern vurdering</option>
+          <option value="teknisk_fejlsoegning">Teknisk fejlsøgning</option>
+          <option value="planfaglig_baggrund">Planfaglig baggrund</option>
+        </select>
+        <p class="hjælpetekst">Svarmodus styrer, om svarbasen skal lave et egentligt supportudkast, en oplysningsanmodning, en intern vurdering eller en teknisk/planfaglig analyse.</p>
+
+        <label for="henvendelse">Spørgsmål fra kommune, rådgiver eller kollega</label>
+        <textarea id="henvendelse" rows="9" placeholder="Indsæt henvendelsen her..."></textarea>
+
+        <label for="ekstraKontekst">Intern kontekst</label>
+        <textarea id="ekstraKontekst" rows="4" placeholder="Fx plantype, planstatus, links eller kendt sagshistorik..."></textarea>
+
+        <label for="filUpload">Bilag og filer</label>
+        <input id="filUpload" type="file" multiple>
+        <p class="hjælpetekst">Tekst udtrækkes lokalt fra tekst-, HTML-, PDF- og DOCX-filer. GeoJSON, GML og shapefile-ZIP analyseres for geometri og attributter. Scannede PDF'er og billeder markeres til OCR-afklaring.</p>
+        <div id="uploadListe" class="uploadliste"></div>
+
+        <div class="handlinger">
+          <button id="sendKnap" type="button">Lav svarudkast</button>
+          <button id="rydKnap" class="sekundær" type="button">Ryd</button>
+        </div>
+      </section>
+
+      <section class="panel svarpanel">
+        <div class="paneltop">
+          <div>
+            <p class="eyebrow">Svar</p>
+            <h2>Svarudkast</h2>
+          </div>
+          <button id="kopierKnap" class="ikonknap" type="button" title="Kopiér svar">Kopiér</button>
+        </div>
+        <div id="svarfelt" class="markdown">Svarudkastet vises her.</div>
+      </section>
+
+      <section class="panel resultatpanel">
+        <div class="paneltop">
+          <div>
+            <p class="eyebrow">Resultat</p>
+            <h2 id="intent">Afventer henvendelse</h2>
+          </div>
+        </div>
+        <div id="resultatfelt" class="markdown metadatafelt">Metadata og interne overvejelser vises her.</div>
+      </section>
+
+      <aside class="kildesøjle">
+        <div class="kildehoved">
+          <div>
+            <p class="eyebrow">Svarbase</p>
+            <h2>Kilder</h2>
+          </div>
+          <input id="kildesøgning" type="search" placeholder="Filtrér">
+        </div>
+        <div id="kildeliste" class="kildeliste"></div>
+      </aside>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

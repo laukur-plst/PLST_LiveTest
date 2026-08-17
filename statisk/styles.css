@@ -1,0 +1,740 @@
+:root {
+  --baggrund: #f6f5f1;
+  --tekst: #111111;
+  --afdæmpet: #536152;
+  --streg: #d9d4cc;
+  --panel: #ffffff;
+  --primær: #2c4b39;
+  --primær-mørk: #1f3629;
+  --bladgrøn: #536152;
+  --lysegrøn: #a6b29a;
+  --lysebrun: #e0d8cf;
+  --lysegul: #e2cf83;
+  --varm: #7a5033;
+  --blå: #536152;
+  --skygge: 0 16px 40px rgba(44, 75, 57, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--baggrund);
+  color: var(--tekst);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.topbjælke {
+  min-height: 96px;
+  padding: 22px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--streg);
+  background: #ffffff;
+}
+
+.brandblok {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.logo {
+  width: 126px;
+  height: auto;
+  display: block;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.eyebrow {
+  margin-bottom: 5px;
+  color: var(--bladgrøn);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.headerhandlinger {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hovednav {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: #f8f7f4;
+}
+
+.navlink {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 13px;
+  border-radius: 6px;
+  color: var(--primær);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.navlink:hover,
+.navlink.aktiv {
+  background: var(--primær);
+  color: #ffffff;
+}
+
+.statuspill {
+  min-width: 86px;
+  padding: 9px 12px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--primær);
+  text-align: center;
+  font-weight: 700;
+}
+
+.kildeapp {
+  padding: 18px;
+}
+
+.kildegrid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(480px, 1.6fr);
+  gap: 18px;
+}
+
+.svarbankgrid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(460px, 1.4fr);
+  gap: 18px;
+}
+
+.gisgrid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(520px, 1.45fr);
+  gap: 18px;
+}
+
+.statkort {
+  display: grid;
+  gap: 10px;
+}
+
+.statlinje {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--streg);
+}
+
+.kildetabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.kildetabel th,
+.kildetabel td {
+  padding: 10px;
+  border-bottom: 1px solid var(--streg);
+  text-align: left;
+  vertical-align: top;
+}
+
+.kildetabel th {
+  color: var(--afdæmpet);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.kildetabel a {
+  color: var(--primær);
+  font-weight: 700;
+}
+
+.kildetabelwrap {
+  max-height: calc(100vh - 230px);
+  overflow: auto;
+}
+
+.note {
+  margin-top: 12px;
+  color: var(--afdæmpet);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.relationspanel {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--streg);
+}
+
+.arbejdsflade {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.25fr) minmax(320px, 0.95fr) minmax(240px, 0.75fr);
+  gap: 18px;
+  padding: 18px;
+  align-items: stretch;
+}
+
+.panel,
+.kildesøjle {
+  min-height: calc(100vh - 132px);
+  padding: 20px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--skygge);
+}
+
+.paneltop,
+.kildehoved {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin: 16px 0 7px;
+  color: #283530;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+textarea,
+input[type="search"],
+input[type="file"],
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  border: 1px solid #cfc8bf;
+  border-radius: 8px;
+  background: #fbfaf8;
+  color: var(--tekst);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  padding: 12px;
+  line-height: 1.45;
+}
+
+textarea:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: var(--primær);
+  box-shadow: 0 0 0 3px rgba(44, 75, 57, 0.16);
+}
+
+input[type="search"] {
+  max-width: 132px;
+  padding: 9px 10px;
+}
+
+input[type="file"],
+input[type="text"],
+input[type="number"],
+select {
+  padding: 10px;
+  color: var(--afdæmpet);
+}
+
+.lilleInput {
+  max-width: 76px;
+}
+
+.formgrid {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 0.5fr);
+  gap: 12px;
+}
+
+.hjælpetekst {
+  margin-top: 7px;
+  color: var(--afdæmpet);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.hjælpeboks {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--streg);
+  border-left: 5px solid var(--lysegul);
+  border-radius: 8px;
+  background: #fbfaf8;
+  color: var(--tekst);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.hjælpeboks p {
+  margin-top: 6px;
+}
+
+.uploadliste {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.uploadkort {
+  display: grid;
+  gap: 3px;
+  padding: 9px 10px;
+  border: 1px solid var(--streg);
+  border-left: 5px solid var(--primær);
+  border-radius: 8px;
+  background: #fbfaf8;
+}
+
+.uploadkort.ocr {
+  border-left-color: var(--lysegul);
+}
+
+.uploadkort strong {
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.uploadkort span {
+  color: var(--afdæmpet);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.analyseopsummering {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.analyseopsummering span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 9px;
+  border: 1px solid var(--streg);
+  border-radius: 999px;
+  background: #fbfaf8;
+  color: var(--primær);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rapportfelt {
+  min-height: calc(100vh - 240px);
+  max-height: calc(100vh - 240px);
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: #fbfaf8;
+  color: var(--tekst);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.miniKnap {
+  min-height: 30px;
+  justify-self: start;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.kontakt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  color: var(--primær);
+  font-weight: 600;
+}
+
+.infoikon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--streg);
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--primær);
+  cursor: help;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.infoikon:focus {
+  outline: 3px solid rgba(44, 75, 57, 0.16);
+  outline-offset: 2px;
+}
+
+.handlinger {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 16px;
+  background: var(--primær);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+button:hover {
+  background: var(--primær-mørk);
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+button.sekundær,
+button.ikonknap {
+  border: 1px solid var(--streg);
+  background: #ffffff;
+  color: var(--tekst);
+}
+
+button.sekundær:hover,
+button.ikonknap:hover {
+  border-color: var(--primær);
+  color: var(--primær);
+}
+
+#svarfelt,
+#resultatfelt {
+  min-height: calc(100vh - 220px);
+  max-height: calc(100vh - 220px);
+  overflow: auto;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: #fbfaf8;
+  line-height: 1.5;
+}
+
+.metadatafelt {
+  font-size: 14px;
+}
+
+.markdown h3,
+.markdown h4,
+.markdown h5 {
+  margin: 18px 0 8px;
+  line-height: 1.25;
+}
+
+.markdown h3:first-child,
+.markdown h4:first-child,
+.markdown h5:first-child,
+.markdown p:first-child {
+  margin-top: 0;
+}
+
+.markdown h3 {
+  font-size: 19px;
+}
+
+.markdown h4 {
+  font-size: 16px;
+}
+
+.markdown h5 {
+  font-size: 14px;
+}
+
+.markdown p {
+  margin: 0 0 12px;
+}
+
+.markdown ul,
+.markdown ol {
+  margin: 0 0 14px 22px;
+  padding: 0;
+}
+
+.markdown li {
+  margin: 5px 0;
+}
+
+.markdown code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #eeebe7;
+  color: #18251f;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.94em;
+}
+
+.markdown pre {
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--streg);
+  border-radius: 8px;
+  background: #eeebe7;
+}
+
+.markdown pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.markdown a {
+  color: var(--primær);
+  font-weight: 700;
+}
+
+.kildeliste {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 210px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.kilde {
+  border: 1px solid var(--streg);
+  border-left: 5px solid var(--bladgrøn);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfaf8;
+}
+
+.kilde[data-prioritet="1"] {
+  border-left-color: var(--primær);
+}
+
+.kilde[data-prioritet="2"] {
+  border-left-color: var(--lysegrøn);
+}
+
+.kilde h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.kilde p {
+  color: var(--afdæmpet);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.mærke {
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(226, 207, 131, 0.55);
+  color: #4d3b12;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.qaListe,
+.relationListe {
+  display: grid;
+  gap: 10px;
+  max-height: calc(100vh - 230px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.qaKort,
+.relationkort {
+  border: 1px solid var(--streg);
+  border-left: 5px solid var(--primær);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfaf8;
+}
+
+.qaKort[data-status="kladde"] {
+  border-left-color: var(--lysegul);
+}
+
+.qaKort[data-status="forældet"] {
+  border-left-color: var(--lysebrun);
+  opacity: 0.78;
+}
+
+.qaTop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.qaKort h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.qaKort p,
+.relationkort span {
+  color: var(--afdæmpet);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.bilagtekst {
+  width: 100%;
+  margin-top: 2px;
+  color: var(--afdæmpet);
+  font-size: 12px;
+}
+
+.tagliste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.tagchip {
+  display: inline-flex;
+  padding: 3px 7px;
+  border: 1px solid var(--streg);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--primær);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.handlinger.kompakt {
+  margin-top: 10px;
+}
+
+.relationkort {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .arbejdsflade {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .svarbankgrid,
+  .gisgrid,
+  .kildegrid {
+    grid-template-columns: 1fr;
+  }
+
+  .kildesøjle {
+    grid-column: 1 / -1;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbjælke,
+  .paneltop,
+  .kildehoved {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .headerhandlinger,
+  .hovednav {
+    width: 100%;
+  }
+
+  .hovednav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .navlink {
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  .brandblok {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .arbejdsflade {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .panel,
+  .kildesøjle {
+    min-height: auto;
+  }
+
+  #svarfelt,
+  #resultatfelt,
+  .rapportfelt {
+    min-height: 360px;
+    max-height: none;
+  }
+}

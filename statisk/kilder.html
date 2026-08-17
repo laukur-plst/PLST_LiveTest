@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kilder - Plandata Svarbasen</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbjælke">
+      <div class="brandblok">
+        <img class="logo" src="/logo.png" alt="Plandata.dk">
+        <div>
+          <p class="eyebrow">Svarbase</p>
+          <h1>Kilder og prioritet</h1>
+        </div>
+      </div>
+      <div class="headerhandlinger">
+        <nav class="hovednav" aria-label="Primær navigation">
+          <a class="navlink" href="/">Svarbase</a>
+          <a class="navlink aktiv" href="/kilder.html">Kilder</a>
+          <a class="navlink" href="/svarbank.html">Svarbank</a>
+          <a class="navlink" href="/gis.html">GIS</a>
+        </nav>
+        <span id="kildeStatus" class="statuspill">Klar</span>
+      </div>
+    </header>
+
+    <main class="kildeapp">
+      <div class="kildegrid">
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Status</p>
+              <h2>Indekseret viden</h2>
+            </div>
+          </div>
+          <div id="statuskort" class="statkort"></div>
+          <div class="handlinger">
+            <button id="opdaterPlandata" type="button">Opdater Plandata.dk</button>
+            <button id="genindlæs" class="sekundær" type="button">Genindlæs</button>
+          </div>
+          <p class="note">Plandata.dk har prioritet 0 og sendes først til LLM'en. Standardsvar er nedprioriteret som skabeloner til sager uden egentlig supporthandling eller med manglende oplysninger. Confluence-sider bruges kun fra de fire godkendte områder. Confluence-opdatering kræver fortsat en indlogget session eller et særskilt Atlassian-token.</p>
+
+          <div class="relationspanel">
+            <p class="eyebrow">Relationer</p>
+            <div class="hjælpeboks">
+              <strong>Sådan virker relationer:</strong>
+              <p>En relation beskriver hvordan to kilder hænger sammen. Den ændrer ikke teksten i kilden, men gemmes som metadata i vidensbasen, så fremtidige brugere kan se om en kilde supplerer, erstatter, modsiger eller kræver en anden kilde.</p>
+              <p><strong>Fra kilde</strong> er den kilde relationen starter ved. <strong>Til kilde</strong> er den kilde der peges på. Brug note-feltet til korte forklaringer, fx hvorfor en ældre vejledning er erstattet.</p>
+            </div>
+            <label for="fraKilde">Fra kilde</label>
+            <select id="fraKilde"></select>
+            <label for="relationType">Relation</label>
+            <select id="relationType">
+              <option value="supplerer">Supplerer</option>
+              <option value="erstatter">Erstatter</option>
+              <option value="erstattes af">Erstattes af</option>
+              <option value="modsiger">Modsiger</option>
+              <option value="eksempel på">Eksempel på</option>
+              <option value="kræver">Kræver</option>
+            </select>
+            <label for="tilKilde">Til kilde</label>
+            <select id="tilKilde"></select>
+            <label for="relationNote">Note</label>
+            <input id="relationNote" type="text" placeholder="Kort note om relationen">
+            <div class="handlinger">
+              <button id="gemRelation" class="sekundær" type="button">Gem relation</button>
+            </div>
+            <div id="relationListe" class="relationListe"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Oversigt</p>
+              <h2>Tilgængelige kilder</h2>
+            </div>
+            <input id="filter" type="search" placeholder="Filtrér">
+          </div>
+          <div class="kildetabelwrap">
+            <table class="kildetabel">
+              <thead>
+                <tr>
+                  <th>Prioritet</th>
+                  <th>Kilde</th>
+                  <th>Område</th>
+                  <th>Titel</th>
+                  <th>Tags</th>
+                  <th>Styring</th>
+                </tr>
+              </thead>
+              <tbody id="kildeTabel"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="/kilder.js"></script>
+  </body>
+</html>

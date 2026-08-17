@@ -1,0 +1,140 @@
+[
+  {
+    "titel": "Supportens standardsvar (Confluence)",
+    "type": "Sags-/afvisningsskabelon",
+    "prioritet": 5,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Standardsvar er primært skabeloner til sager, der ikke er tilstrækkeligt oplyst eller ikke kræver egentlig supporthandling fra Plandata Support. De må ikke behandles som fagligt facit, hvis sagen kræver konkret support, datamodelafklaring eller systemvejledning.",
+    "noegleord": [
+      "standardsvar",
+      "udskiftning",
+      "plandokument",
+      "pdf",
+      "høring",
+      "høringsmeddelelse",
+      "aflysning",
+      "validering"
+    ]
+  },
+  {
+    "titel": "Confluence-vidensbase",
+    "type": "Vidensbase",
+    "prioritet": 2,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Intern viden om arbejdsgange, plandataemner og supportens fortolkninger.",
+    "noegleord": [
+      "lokalplan",
+      "kommuneplan",
+      "ramme",
+      "delområde",
+      "byggefelt",
+      "procedure",
+      "arbejdsgang"
+    ]
+  },
+  {
+    "titel": "Tidligere lignende supportsager",
+    "type": "Erfaringskilde",
+    "prioritet": 3,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Tidligere sager kan bruges til at finde ensartede formuleringer og kendte afklaringer.",
+    "noegleord": [
+      "tidligere sag",
+      "lignende",
+      "kommune",
+      "rådgiver",
+      "systemleverandør"
+    ]
+  },
+  {
+    "titel": "Plandata.dk vejledninger",
+    "type": "Offentlig vejledning",
+    "prioritet": 4,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Officielle vejledninger, som kan bruges i svar til eksterne modtagere.",
+    "noegleord": [
+      "vejledning",
+      "plandata.dk",
+      "forslag",
+      "vedtaget",
+      "kladde",
+      "upload"
+    ]
+  },
+  {
+    "titel": "Kodelister og datamodeller",
+    "type": "Datagrundlag",
+    "prioritet": 5,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Bruges ved spørgsmål om felter, gyldige værdier, planstatus, datatyper og relationer.",
+    "noegleord": [
+      "kodeliste",
+      "datamodel",
+      "felt",
+      "værdi",
+      "kode",
+      "dto",
+      "json"
+    ]
+  },
+  {
+    "titel": "REST API dokumentation",
+    "type": "Teknisk dokumentation",
+    "prioritet": 6,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Prioriteres ved spørgsmål om REST API, Swagger, DTO'er, JSON-indberetning og systemintegration.",
+    "noegleord": [
+      "rest api",
+      "api",
+      "swagger",
+      "json",
+      "dto",
+      "integration",
+      "systemintegration"
+    ]
+  },
+  {
+    "titel": "Interne supportprocedurer",
+    "type": "Intern procedure",
+    "prioritet": 7,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Bruges til interne trin, kvalitetssikring, overlevering og eskalering.",
+    "noegleord": [
+      "intern",
+      "procedure",
+      "eskalering",
+      "kvalitetssikring",
+      "support"
+    ]
+  },
+  {
+    "titel": "F2-procedurer",
+    "type": "Sagsprocedure",
+    "prioritet": 8,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Bruges når svaret afhænger af journalisering, sagstrin eller formelle F2-arbejdsgange.",
+    "noegleord": [
+      "f2",
+      "journalisering",
+      "sag",
+      "procedure",
+      "plandokument"
+    ]
+  },
+  {
+    "titel": "Jira-sager",
+    "type": "Fejl- og udviklingskilde",
+    "prioritet": 9,
+    "status": "Kildehenvisning oprettet - konkret tekst skal importeres eller indsættes manuelt",
+    "beskrivelse": "Bruges når spørgsmålet handler om kendte fejl, systemadfærd eller igangværende afklaringer.",
+    "noegleord": [
+      "jira",
+      "fejl",
+      "bug",
+      "systemfejl",
+      "valideringsfejl",
+      "uploadfejl",
+      "geometri"
+    ]
+  }
+]

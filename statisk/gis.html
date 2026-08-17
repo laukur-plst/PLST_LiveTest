@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GIS - Plandata Svarbasen</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbjælke">
+      <div class="brandblok">
+        <img class="logo" src="/logo.png" alt="Plandata.dk">
+        <div>
+          <p class="eyebrow">Svarbase</p>
+          <h1>GIS-fejlsøgning</h1>
+        </div>
+      </div>
+      <div class="headerhandlinger">
+        <nav class="hovednav" aria-label="Primær navigation">
+          <a class="navlink" href="/">Svarbase</a>
+          <a class="navlink" href="/kilder.html">Kilder</a>
+          <a class="navlink" href="/svarbank.html">Svarbank</a>
+          <a class="navlink aktiv" href="/gis.html">GIS</a>
+        </nav>
+        <span id="gisStatus" class="statuspill">Klar</span>
+      </div>
+    </header>
+
+    <main class="kildeapp">
+      <div class="gisgrid">
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Analyse</p>
+              <h2>GIS-fil og fejltekst</h2>
+            </div>
+          </div>
+
+          <label for="gisFilUpload">GIS-filer</label>
+          <input id="gisFilUpload" type="file" multiple accept=".geojson,.json,.gml,.xml,.zip,.shp">
+          <p class="hjælpetekst">GeoJSON, GML/XML, enkeltstående SHP og zippede shapefiles analyseres lokalt. Zippede shapefiles bør indeholde `.shp`, `.shx`, `.dbf` og `.prj`.</p>
+          <div id="gisUploadListe" class="uploadliste"></div>
+
+          <label for="gisFejltekst">Fejltekst eller kontekst</label>
+          <textarea id="gisFejltekst" rows="7" placeholder="Indsæt fejlmeddelelse, plantype, uploadmetode, API-response eller andet relevant..."></textarea>
+
+          <div class="handlinger">
+            <button id="analyserGis" type="button">Analyser filer</button>
+            <button id="sendTilSvarbase" class="sekundær" type="button">Send til svarbase</button>
+            <button id="kopierGis" class="sekundær" type="button">Kopiér rapport</button>
+            <button id="rydGis" class="sekundær" type="button">Ryd</button>
+          </div>
+          <p class="note">Analysen er en basisvalidering. Den kan pege på typiske problemer, men erstatter ikke fuld validering i et GIS-værktøj eller kontrol mod den aktuelle Plandata.dk-datamodel.</p>
+        </section>
+
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Resultat</p>
+              <h2>Teknisk rapport</h2>
+            </div>
+          </div>
+          <div id="gisOpsummering" class="analyseopsummering"></div>
+          <pre id="gisRapport" class="rapportfelt">Upload en GIS-fil for at danne en teknisk rapport.</pre>
+        </section>
+      </div>
+    </main>
+
+    <script src="/gis.js"></script>
+  </body>
+</html>

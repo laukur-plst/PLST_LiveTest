@@ -1,0 +1,142 @@
+[
+  {
+    "titel": "Lokalplaner",
+    "url": "https://www.plandata.dk/vejledning-til-lokalplanlaegning/lokalplaner",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til lokalplanlægning"]
+  },
+  {
+    "titel": "Aflysning og delvis aflysning af lokalplaner",
+    "url": "https://www.plandata.dk/vejledning-til-lokalplanlaegning/aflysning-og-delvis-aflysning-af-lokalplaner",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til lokalplanlægning"]
+  },
+  {
+    "titel": "Registering af tekniske delområder",
+    "url": "https://www.plandata.dk/vejledning-til-lokalplanlaegning/registering-af-tekniske-delomraader",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til lokalplanlægning"]
+  },
+  {
+    "titel": "Kommuneplaner",
+    "url": "https://www.plandata.dk/vejledning-til-kommuneplaner/kommuneplaner",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til kommuneplaner"]
+  },
+  {
+    "titel": "Kommuneplantillæg",
+    "url": "https://www.plandata.dk/vejledning-til-kommuneplaner/kommuneplantillaeg",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til kommuneplaner"]
+  },
+  {
+    "titel": "Digitale kommuneplaner",
+    "url": "https://www.plandata.dk/vejledning-til-kommuneplaner/digitale-kommuneplaner",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Vejledning til kommuneplaner"]
+  },
+  {
+    "titel": "Brugeroprettelse og rettigheder",
+    "url": "https://www.plandata.dk/om-plandatadk-og-dets-opbygning/brugeroprettelse-og-rettigheder",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Om Plandata.dk"]
+  },
+  {
+    "titel": "Opret og rediger høringsparter",
+    "url": "https://www.plandata.dk/om-plandatadk-og-dets-opbygning/opret-og-rediger-hoeringsparter",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Om Plandata.dk"]
+  },
+  {
+    "titel": "Planers tilvejebringelse og ophævelse",
+    "url": "https://www.plandata.dk/om-plandatadk-og-dets-opbygning/planers-tilvejebringelse-og-ophaevelse",
+    "omraade": "Plandata.dk vejledninger",
+    "prioritet": 0,
+    "forfaedre": ["Om Plandata.dk"]
+  },
+  {
+    "titel": "Vejledning til uploadfunktionen",
+    "url": "https://www.plandata.dk/teknisk-information/upload-og-download-af-planer/vejledning-til-uploadfunktionen",
+    "omraade": "Plandata.dk teknisk information",
+    "prioritet": 0,
+    "forfaedre": ["Teknisk information", "Upload og download af planer"]
+  },
+  {
+    "titel": "Valideringstjek af geometrier",
+    "url": "https://www.plandata.dk/teknisk-information/upload-og-download-af-planer/valideringstjek-af-geometrier",
+    "omraade": "Plandata.dk teknisk information",
+    "prioritet": 0,
+    "forfaedre": ["Teknisk information", "Upload og download af planer"]
+  },
+  {
+    "titel": "Introduktion til datamodeller",
+    "url": "https://www.plandata.dk/teknisk-information/datamodeller",
+    "omraade": "Plandata.dk teknisk information",
+    "prioritet": 0,
+    "forfaedre": ["Teknisk information", "Datamodeller"]
+  },
+  {
+    "titel": "Datamodel - lokalplaner",
+    "url": "https://www.plandata.dk/teknisk-information/datamodeller/lokalplaner",
+    "omraade": "Plandata.dk teknisk information",
+    "prioritet": 0,
+    "forfaedre": ["Teknisk information", "Datamodeller"]
+  },
+  {
+    "titel": "Kodelister til datamodeller",
+    "url": "https://www.plandata.dk/teknisk-information/kategorier-og-koder/kodelister-til-datamodeller",
+    "omraade": "Plandata.dk teknisk information",
+    "prioritet": 0,
+    "forfaedre": ["Teknisk information", "Kategorier og koder"]
+  },
+  {
+    "titel": "Indberetning via REST API",
+    "url": "https://www.plandata.dk/tredjeparter/vejledning-til-rest-api/indberetning-via-rest-api",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Vejledning til REST API"]
+  },
+  {
+    "titel": "Generel vejledning til REST API gennem Swagger",
+    "url": "https://www.plandata.dk/tredjeparter/vejledning-til-rest-api/generel-vejledning-til-rest-api-gennem-swagger",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Vejledning til REST API"]
+  },
+  {
+    "titel": "Vejledning til indberetning af digitale kommuneplaner",
+    "url": "https://www.plandata.dk/tredjeparter/vejledning-til-rest-api/vejledning-til-indberetning-af-digitale-kommuneplaner",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Vejledning til REST API"]
+  },
+  {
+    "titel": "Bestilling og implementering af token klient",
+    "url": "https://www.plandata.dk/tredjeparter/vejledning-til-rest-api/bestilling-og-implementering-af-token-klient",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Vejledning til REST API"]
+  },
+  {
+    "titel": "Vejledning i indberetning af spildevandsplaner via REST API",
+    "url": "https://www.plandata.dk/tredjeparter/vejledning-til-rest-api/vejledning-i-indberetning-af-spildevandsplaner-via-rest-api",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Vejledning til REST API"]
+  },
+  {
+    "titel": "Datamodel for REST API",
+    "url": "https://www.plandata.dk/tredjeparter/datamodeller-for-tredjeparter/datamodel-for-rest-api",
+    "omraade": "Plandata.dk REST API",
+    "prioritet": 0,
+    "forfaedre": ["Tredjeparter", "Datamodeller for tredjeparter"]
+  }
+]

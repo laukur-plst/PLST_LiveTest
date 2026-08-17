@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Svarbank - Plandata Svarbasen</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbjælke">
+      <div class="brandblok">
+        <img class="logo" src="/logo.png" alt="Plandata.dk">
+        <div>
+          <p class="eyebrow">Svarbase</p>
+          <h1>Svarbank</h1>
+        </div>
+      </div>
+      <div class="headerhandlinger">
+        <nav class="hovednav" aria-label="Primær navigation">
+          <a class="navlink" href="/">Svarbase</a>
+          <a class="navlink" href="/kilder.html">Kilder</a>
+          <a class="navlink aktiv" href="/svarbank.html">Svarbank</a>
+          <a class="navlink" href="/gis.html">GIS</a>
+        </nav>
+        <span id="svarbankStatus" class="statuspill">Klar</span>
+      </div>
+    </header>
+
+    <main class="kildeapp">
+      <div class="svarbankgrid">
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Nyt indhold</p>
+              <h2>Spørgsmål og svar</h2>
+            </div>
+          </div>
+
+          <input id="qaId" type="hidden">
+
+          <label for="spoergsmaal">Godt spørgsmål</label>
+          <textarea id="spoergsmaal" rows="5" placeholder="Fx Kommunen får uploadfejl på en GeoJSON med polygoner..."></textarea>
+
+          <label for="qaSvar">Godt svar</label>
+          <textarea id="qaSvar" rows="9" placeholder="Skriv det kvalitetssikrede svar, som fremover må bruges som kilde..."></textarea>
+
+          <div class="formgrid">
+            <label>
+              Status
+              <select id="qaStatus">
+                <option value="kladde">Kladde</option>
+                <option value="godkendt">Godkendt</option>
+                <option value="forældet">Forældet</option>
+              </select>
+            </label>
+            <label>
+              Prioritet
+              <input id="qaPrioritet" type="number" min="0" max="9" value="1">
+            </label>
+          </div>
+          <div class="hjælpeboks">
+            <strong>Status betyder:</strong>
+            <p><strong>Kladde</strong> gemmes kun i Svarbank og bruges ikke som kilde endnu. <strong>Godkendt</strong> bliver indekseret og kan bruges i nye svar. <strong>Forældet</strong> bevares til historik, men fjernes fra søgeindekset.</p>
+          </div>
+
+          <label for="qaTags">Tags</label>
+          <input id="qaTags" type="text" placeholder="gis, uploadfejl, datamodel">
+
+          <label for="qaFilUpload">Bilag til spørgsmål/svar</label>
+          <input id="qaFilUpload" type="file" multiple>
+          <p class="hjælpetekst">Bilag læses på samme måde som på hovedsiden. Når svaret er godkendt, indgår udtrukket tekst fra bilagene også i kildegrundlaget.</p>
+          <div id="qaUploadListe" class="uploadliste"></div>
+
+          <div class="handlinger">
+            <button id="gemQa" type="button">Gem i svarbank</button>
+            <button id="nyQa" class="sekundær" type="button">Ny</button>
+          </div>
+          <p class="note">Kun svar med status <strong>Godkendt</strong> bliver indekseret som kilde i svarbasen.</p>
+        </section>
+
+        <section class="panel">
+          <div class="paneltop">
+            <div>
+              <p class="eyebrow">Oversigt</p>
+              <h2>Gemte svar</h2>
+            </div>
+            <input id="qaFilter" type="search" placeholder="Filtrér">
+          </div>
+          <div id="qaListe" class="qaListe"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="/svarbank.js"></script>
+  </body>
+</html>

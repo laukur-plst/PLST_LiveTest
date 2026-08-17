@@ -1,0 +1,89 @@
+{
+  "godkendt_dato": "2026-06-20",
+  "space_key": "plandata",
+  "princip": "Kun sider der matcher disse godkendte områder må importeres og bruges som kildegrundlag.",
+  "omraader": [
+    {
+      "navn": "Standardsvar",
+      "prioritet": 5,
+      "godkendt": true,
+      "titel_match": [
+        "Standardsvar",
+        "Kladder til standardsvar",
+        "Typiske spørgsmål vedrørende deljordstykker",
+        "Zonekort mailsvar og afklaringer"
+      ],
+      "sti_match": [
+        "Standardsvar"
+      ]
+    },
+    {
+      "navn": "Supportens vidensdeling",
+      "prioritet": 2,
+      "godkendt": true,
+      "titel_match": [
+        "Supportens vidensdeling",
+        "Support vejledninger (+rest)",
+        "Sagsgang i supporten",
+        "F2-procedure",
+        "Jira - procedure",
+        "Lokalplaner",
+        "Kommuneplaner",
+        "Høringsmeddelelser-, periode og parter",
+        "Upload funktionen",
+        "REST Api",
+        "Qgis, WFS og WMS",
+        "Zonekort - support",
+        "PDK - admin modul"
+      ],
+      "sti_match": [
+        "Supportens vidensdeling",
+        "Supports vidensdeling",
+        "Sagsgang i supporten"
+      ]
+    },
+    {
+      "navn": "Datamodel/API/Digital Kommuneplan",
+      "prioritet": 3,
+      "godkendt": true,
+      "titel_match": [
+        "Digital Kommuneplan",
+        "DKP I - Datamodel og REST API",
+        "Datamodel for DKP (REST)",
+        "DTO'er",
+        "Kodelister",
+        "Digital kommuneplan på REST API",
+        "Vejledning i indberetning af Spildevandsplaner via REST API"
+      ],
+      "sti_match": [
+        "Digital Kommuneplan",
+        "DKP I - Datamodel og REST API",
+        "Datamodel for DKP (REST)"
+      ]
+    },
+    {
+      "navn": "Fejl og kendte sager",
+      "prioritet": 4,
+      "godkendt": true,
+      "titel_match": [
+        "Kendte fejl på systemet",
+        "Håndtering af fejlende høringsmeddelelser",
+        "Fejl i høringsmeddelelser januar 2024",
+        "Udskiftning af plandokumenter",
+        "Ændring af planer i PDK-REST"
+      ],
+      "sti_match": []
+    }
+  ],
+  "udeluk_som_standard": [
+    "Tavlemøde",
+    "Teammøde",
+    "Ferie",
+    "Fravær",
+    "Mærkedage",
+    "Strategisession",
+    "Teamsession",
+    "Studietur",
+    "On-boarding"
+  ]
+}

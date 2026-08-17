@@ -1,0 +1,2769 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hvilke planer gælder for mig?</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.3.1/ol.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" />
+
+  <style>
+    :root {
+      --primaer:#2C4B39;
+      --bladgroen:#536152;
+      --blaagroen:#95A396;
+      --lysegroen:#A6B29A;
+      --lysebrun:#E0D8CF;
+      --lysegul:#E2CF83;
+      --sort:#111111;
+      --hvid:#FFFFFF;
+      --bg:#F5F4F1;
+      --panel:#FFFFFF;
+      --kant:#D8D2CA;
+      --shadow:0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing:border-box; }
+    html, body {
+      margin:0;
+      padding:0;
+      min-height:100%;
+      font-family:"Segoe UI", Arial, sans-serif;
+      color:var(--sort);
+      background:var(--bg);
+    }
+
+    header {
+      background:var(--primaer);
+      color:var(--hvid);
+      padding:22px 28px;
+    }
+    header h1 { margin:0 0 6px 0; font-size:30px; font-weight:750; letter-spacing:-0.2px; }
+    header p { max-width:1180px; margin:0; line-height:1.45; font-size:15px; }
+
+    .layout {
+      display:grid;
+      grid-template-columns:390px minmax(0, 1fr);
+      gap:18px;
+      padding:18px;
+      min-height:calc(100vh - 104px);
+    }
+    aside { min-width:0; }
+    main {
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .tab-nav {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:14px;
+      padding:8px;
+      box-shadow:var(--shadow);
+    }
+    .tab-button {
+      background:var(--lysebrun);
+      color:var(--sort);
+      border:1px solid var(--kant);
+      padding:8px 14px;
+      border-radius:10px;
+    }
+    .tab-button.active {
+      background:var(--primaer);
+      color:white;
+      border-color:var(--primaer);
+    }
+    .tab-panel { display:none; min-width:0; }
+    .tab-panel.active { display:block; }
+    .map-panel {
+      height:min(64vh, 740px);
+      min-height:560px;
+    }
+    .overview-panel {
+      display:none;
+      gap:14px;
+      min-width:0;
+    }
+    .overview-panel.active { display:flex; flex-direction:column; }
+    .overview-intro {
+      background:#fffdf5;
+      border:1px solid var(--lysegul);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:12px 14px;
+      font-size:13px;
+      line-height:1.4;
+      color:#333;
+    }
+
+
+    .report-panel {
+      display:none;
+      gap:14px;
+      min-width:0;
+    }
+    .report-panel.active { display:flex; flex-direction:column; }
+    .report-card {
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      line-height:1.5;
+    }
+    .report-card h2 {
+      margin:0 0 8px 0;
+      color:var(--primaer);
+      font-size:22px;
+    }
+    .report-card h3 {
+      margin:18px 0 7px 0;
+      color:var(--primaer);
+      font-size:17px;
+    }
+    .report-card p { margin:0 0 10px 0; }
+    .report-card ul { margin:6px 0 12px 20px; padding:0; }
+    .report-card li { margin:4px 0; }
+    .report-muted { color:#555; font-size:13px; }
+
+    .report-topline {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .report-address-pill {
+      display:inline-flex;
+      align-items:center;
+      border:1px solid var(--kant);
+      background:#F8F7F4;
+      color:#333;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .report-summary-card {
+      background:#F4F0EA;
+      border:1px solid var(--kant);
+      border-left:6px solid var(--primaer);
+      border-radius:14px;
+      padding:14px 15px;
+      margin:12px 0 14px 0;
+    }
+    .report-summary-card h3 {
+      margin:0 0 7px 0;
+      font-size:18px;
+      color:var(--primaer);
+    }
+    .report-summary-card p {
+      margin:0;
+      font-size:14px;
+      line-height:1.48;
+    }
+    .report-overview-grid {
+      display:grid;
+      grid-template-columns:repeat(4, minmax(130px, 1fr));
+      gap:10px;
+      margin:12px 0 14px 0;
+    }
+    .report-overview-tile {
+      border:1px solid var(--kant);
+      border-radius:13px;
+      background:#FBFAF8;
+      padding:11px 12px;
+    }
+    .report-overview-tile strong {
+      display:block;
+      color:var(--primaer);
+      font-size:24px;
+      line-height:1;
+      margin-bottom:4px;
+    }
+    .report-overview-tile span {
+      display:block;
+      color:#444;
+      font-size:12px;
+      line-height:1.25;
+      font-weight:700;
+    }
+    .report-attention {
+      border:1px solid var(--lysegul);
+      background:#FFFDF4;
+      border-radius:14px;
+      padding:13px 15px;
+      margin:12px 0 16px 0;
+    }
+    .report-attention h3 { margin-top:0; }
+    .attention-list {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:9px;
+      margin:8px 0 0 0 !important;
+      padding:0 !important;
+      list-style:none;
+    }
+    .attention-list li {
+      margin:0;
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:11px;
+      padding:9px 10px;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .report-section-nav {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:10px 0 16px 0;
+    }
+    .report-section-nav a {
+      text-decoration:none;
+      color:var(--primaer);
+      background:#F8F7F4;
+      border:1px solid var(--kant);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:750;
+    }
+    .report-theme-section {
+      border:1px solid var(--kant);
+      border-radius:16px;
+      background:white;
+      margin:14px 0;
+      overflow:hidden;
+    }
+    .report-theme-header {
+      background:#F8F7F4;
+      border-bottom:1px solid var(--kant);
+      padding:13px 15px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .report-theme-header h3 {
+      margin:0 0 4px 0;
+      color:var(--primaer);
+      font-size:18px;
+    }
+    .report-theme-header p {
+      margin:0;
+      color:#444;
+      font-size:13px;
+      line-height:1.4;
+    }
+    .report-section-count {
+      flex:0 0 auto;
+      border-radius:999px;
+      background:var(--primaer);
+      color:white;
+      padding:5px 10px;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .report-theme-body {
+      padding:13px 15px 15px 15px;
+    }
+    .report-subheading {
+      font-size:13px;
+      font-weight:850;
+      color:var(--primaer);
+      margin:2px 0 8px 0;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+    .report-hit-card .report-hit-summary {
+      margin:0 0 8px 0;
+      color:#333;
+      font-size:13px;
+      line-height:1.38;
+    }
+    .report-hit-card .report-hit-why {
+      margin:8px 0 0 0;
+      border-top:1px solid #E4DED6;
+      padding-top:7px;
+      color:#444;
+      font-size:12px;
+      line-height:1.35;
+    }
+    .report-empty-box {
+      border:1px dashed var(--kant);
+      border-radius:12px;
+      padding:11px 12px;
+      background:#FBFAF8;
+      color:#555;
+      font-size:13px;
+      line-height:1.4;
+      margin:8px 0 12px 0;
+    }
+
+    .learn-panel {
+      display:none;
+      gap:14px;
+      min-width:0;
+    }
+    .learn-panel.active { display:flex; flex-direction:column; }
+    .learn-intro {
+      background:#fffdf5;
+      border:1px solid var(--lysegul);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:13px 15px;
+      font-size:13px;
+      line-height:1.45;
+      color:#333;
+    }
+    .plantype-search-panel {
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:13px 15px;
+    }
+    .plantype-search-panel label {
+      display:block;
+      font-size:13px;
+      font-weight:800;
+      color:var(--primaer);
+      margin:0 0 6px 0;
+    }
+    .plantype-search-panel input[type="search"] {
+      width:100%;
+      border:1px solid var(--blaagroen);
+      border-radius:10px;
+      padding:9px 10px;
+      font:14px "Segoe UI", Arial, sans-serif;
+      background:white;
+    }
+    .plantype-search-meta {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:8px;
+      color:var(--bladgroen);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .plantype-search-meta button {
+      padding:6px 9px;
+      font-size:12px;
+    }
+    .plantype-card.search-hidden { display:none; }
+    .plantype-no-results {
+      display:none;
+      background:#fffdf5;
+      border:1px solid var(--lysegul);
+      border-radius:14px;
+      padding:13px 15px;
+      color:#333;
+      font-size:13px;
+      line-height:1.45;
+    }
+    .plantype-no-results.active { display:block; }
+    .plantype-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(260px, 1fr));
+      gap:14px;
+    }
+    .plantype-card {
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:15px;
+      line-height:1.45;
+    }
+    .plantype-card h2 {
+      margin:0 0 7px 0;
+      color:var(--primaer);
+      font-size:19px;
+    }
+    .plantype-card p { margin:0 0 9px 0; font-size:13px; }
+    .plantype-card ul { margin:7px 0 10px 19px; padding:0; font-size:13px; }
+    .plantype-card li { margin:4px 0; }
+    .plantype-tag {
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      background:#F4F0EA;
+      border:1px solid var(--kant);
+      color:var(--primaer);
+      font-size:12px;
+      font-weight:750;
+      padding:4px 8px;
+      margin-bottom:9px;
+    }
+    .plantype-links { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .plantype-links a {
+      display:inline-flex;
+      text-decoration:none;
+      border-radius:9px;
+      background:var(--lysebrun);
+      border:1px solid var(--kant);
+      color:var(--sort);
+      padding:7px 9px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .plantype-card.featured {
+      border-color:var(--lysegul);
+      background:#fffdf5;
+    }
+    .report-warning {
+      background:#fffdf5;
+      border:1px solid var(--lysegul);
+      border-radius:12px;
+      padding:11px 12px;
+      margin:12px 0;
+      font-size:13px;
+    }
+    .report-explainer {
+      background:#F8F7F4;
+      border-left:5px solid var(--lysegul);
+      border-radius:12px;
+      padding:12px 13px;
+      margin:10px 0 12px 0;
+      font-size:14px;
+      line-height:1.48;
+    }
+    .report-explainer h4 {
+      margin:0 0 6px 0;
+      color:var(--primaer);
+      font-size:15px;
+    }
+    .report-explainer p { margin:0 0 8px 0; }
+    .report-explainer p:last-child { margin-bottom:0; }
+    .report-explainer .law-note {
+      color:#444;
+      font-size:13px;
+    }
+    .report-explainer details { margin:0; }
+    .report-explainer summary {
+      cursor:pointer;
+      color:var(--primaer);
+      font-weight:750;
+      font-size:15px;
+      list-style-position:outside;
+    }
+    .report-explainer-body { margin-top:8px; }
+    .report-section-intro { font-size:14px; line-height:1.45; color:#333; margin:4px 0 10px 0; }
+    .report-hit-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; margin:10px 0 14px 0; }
+    .report-hit-card { border:1px solid var(--kant); border-radius:12px; background:#FBFAF8; padding:11px 12px; }
+    .report-hit-card h4 { margin:0 0 7px 0; color:var(--primaer); font-size:15px; line-height:1.25; }
+    .report-hit-type { display:inline-block; margin-bottom:6px; border-radius:999px; padding:3px 8px; background:var(--lysebrun); color:#222; font-size:11px; font-weight:750; }
+    .report-hit-card dl { display:grid; grid-template-columns:96px minmax(0, 1fr); gap:5px 8px; margin:0; font-size:13px; line-height:1.34; }
+    .report-hit-card dt { color:var(--bladgroen); font-weight:750; }
+    .report-hit-card dd { margin:0; overflow-wrap:anywhere; }
+    .report-hit-card a { overflow-wrap:anywhere; }
+    .report-empty { color:#555; font-size:13px; margin:8px 0 14px 0; }
+    .report-relation-box { border:1px solid var(--kant); border-left:5px solid var(--lysegul); border-radius:12px; background:#FFFDF4; padding:11px 12px; margin:10px 0 14px 0; }
+    .report-relation-box h4 { margin:0 0 6px 0; color:var(--primaer); font-size:15px; }
+    .report-relation-box p { margin:0 0 8px 0; font-size:13px; line-height:1.4; }
+    .report-relation-box ul { margin:6px 0 0 18px; padding:0; font-size:13px; line-height:1.35; }
+    @media (max-width:1050px) { .report-hit-grid, .report-overview-grid, .attention-list { grid-template-columns:1fr; } .report-theme-header { flex-direction:column; } }
+    .link-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+      margin-top:8px;
+    }
+    .link-card {
+      border:1px solid var(--kant);
+      border-radius:12px;
+      padding:10px 11px;
+      background:#FBFAF8;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .link-card a { display:block; margin-bottom:3px; }
+    .answer-actions { flex-direction:column; gap:8px; }
+
+    .box, .kpi, .table-card, .result-card {
+      background:var(--panel);
+      border:1px solid var(--kant);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+    }
+
+
+    .search-box { padding:14px; margin-bottom:14px; position:relative; }
+    .box-title { display:block; font-weight:750; color:var(--primaer); margin-bottom:8px; }
+    .small-note { color:var(--bladgroen); font-size:12px; line-height:1.35; margin-top:8px; }
+
+    input[type="search"], select {
+      width:100%;
+      border:1px solid var(--blaagroen);
+      border-radius:10px;
+      padding:10px 11px;
+      font:14px "Segoe UI", Arial, sans-serif;
+      background:white;
+    }
+
+    .admin-layer-list {
+      max-height:250px;
+      overflow:auto;
+      border:1px solid var(--kant);
+      border-radius:12px;
+      background:#FBFAF8;
+      padding:7px;
+    }
+    .admin-layer-row {
+      display:grid;
+      grid-template-columns:18px minmax(0, 1fr);
+      gap:7px;
+      align-items:start;
+      padding:6px 5px;
+      border-bottom:1px solid #EEE8E0;
+      font-size:12px;
+      line-height:1.25;
+      color:#222;
+    }
+    .admin-layer-row:last-child { border-bottom:0; }
+    .admin-layer-row input { margin-top:2px; }
+    .admin-layer-row small { color:var(--bladgroen); display:block; margin-top:2px; }
+    .admin-summary { font-size:12px; color:var(--bladgroen); line-height:1.35; margin-top:8px; }
+
+    .filter-box { padding:14px; margin-bottom:14px; }
+    .filter-groups { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+    .filter-group { border:1px solid var(--kant); border-radius:12px; background:#FBFAF8; padding:10px; }
+    .filter-group-title { font-size:14px; font-weight:750; color:var(--primaer); margin-bottom:2px; }
+    .filter-group-subtitle { font-size:12px; color:var(--bladgroen); line-height:1.35; margin-bottom:8px; }
+    .type-toggle-list { display:flex; flex-direction:column; gap:6px; }
+    .type-toggle-row { display:grid; grid-template-columns:18px minmax(0, 1fr); gap:8px; align-items:start; padding:4px 2px; font-size:14px; line-height:1.3; color:#222; }
+    .type-toggle-row input { margin-top:2px; }
+    .type-toggle-row small { display:block; color:var(--bladgroen); font-size:12px; margin-top:2px; }
+    .hidden-select { display:none !important; }
+    .button-row.compact { margin-top:8px; }
+
+    .suggestions {
+      position:absolute;
+      left:14px;
+      right:14px;
+      top:72px;
+      z-index:3000;
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:12px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.16);
+      overflow:hidden;
+      display:none;
+      max-height:310px;
+      overflow-y:auto;
+    }
+    .suggestion {
+      padding:10px 11px;
+      cursor:pointer;
+      border-bottom:1px solid #eee8e0;
+      font-size:13px;
+      line-height:1.35;
+    }
+    .suggestion:hover { background:#F4F0EA; }
+    .suggestion:last-child { border-bottom:0; }
+
+    .button-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    button {
+      border:0;
+      border-radius:9px;
+      padding:8px 10px;
+      background:var(--lysegul);
+      color:var(--sort);
+      cursor:pointer;
+      font-family:"Segoe UI", Arial, sans-serif;
+      font-size:13px;
+      font-weight:700;
+    }
+    button.primary { background:var(--primaer); color:white; }
+    button.secondary { background:var(--lysebrun); }
+    button:disabled { opacity:.55; cursor:not-allowed; }
+
+    .status-line {
+      padding:10px 12px;
+      border-radius:10px;
+      background:#FBFAF8;
+      border:1px solid var(--kant);
+      color:var(--bladgroen);
+      font-size:13px;
+      line-height:1.4;
+      margin-top:10px;
+    }
+    .status-line.error { background:#FFF2F2; color:#7C1F1F; border-color:#E0B6B6; }
+    .status-line.ok { background:#F1F7F1; color:var(--primaer); border-color:var(--lysegroen); }
+    .loader {
+      display:inline-block;
+      width:12px;
+      height:12px;
+      border:2px solid var(--lysebrun);
+      border-top-color:var(--primaer);
+      border-radius:50%;
+      animation:spin .8s linear infinite;
+      vertical-align:-2px;
+      margin-right:6px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .answer-box {
+      padding:14px;
+      margin-bottom:14px;
+      background:#fffdf5;
+      border:1px solid var(--lysegul);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+    }
+    .answer-title { color:var(--primaer); font-size:17px; font-weight:750; margin:0 0 8px 0; }
+    .answer-text { font-size:14px; line-height:1.45; margin:0; }
+    .answer-actions { display:none; margin-top:10px; }
+    .answer-actions.visible { display:flex; }
+    .answer-actions button { width:100%; justify-content:center; }
+
+    .result-list { display:grid; gap:10px; margin-bottom:0; }
+    .result-card { padding:12px; }
+    .result-head { display:flex; justify-content:space-between; gap:8px; align-items:start; margin-bottom:6px; }
+    .result-type {
+      display:inline-flex;
+      align-items:center;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--lysebrun);
+      color:#222;
+      font-size:11px;
+      font-weight:750;
+      white-space:nowrap;
+    }
+    .result-title { color:var(--primaer); font-weight:750; line-height:1.25; margin:0; }
+    .result-meta { font-size:12px; color:#444; line-height:1.45; margin-top:5px; }
+    .empty-state { padding:12px; border:1px dashed var(--kant); border-radius:12px; color:#555; font-size:13px; background:#FBFAF8; }
+
+    #map {
+      position:relative;
+      width:100%;
+      height:100%;
+      min-height:560px;
+      border-radius:14px;
+      border:1px solid var(--kant);
+      overflow:hidden;
+      background:#DFE6DF;
+    }
+
+    .table-card { padding:14px; overflow:hidden; }
+    .table-card h2 { color:var(--primaer); font-size:20px; margin:0 0 10px 0; }
+    table.dataTable { width:100% !important; font-size:13px; }
+    table.dataTable thead th { background:var(--primaer); color:white; border-bottom:0 !important; }
+    #resultTable tbody tr { cursor:pointer; }
+    #resultTable tbody tr:hover { background:#F3F1ED !important; }
+    #resultTable tbody tr.row-selected { outline:2px solid var(--primaer); outline-offset:-2px; }
+
+    .legend { background:white; border-radius:10px; padding:10px; line-height:1.35; box-shadow:0 1px 8px rgba(0,0,0,0.15); max-width:290px; font-size:12px; }
+    .legend b { color:var(--primaer); display:block; margin-bottom:6px; }
+    .legend-row { display:grid; grid-template-columns:14px minmax(0,1fr); gap:7px; align-items:center; margin:4px 0; }
+    .legend-swatch { width:14px; height:14px; border-radius:4px; border:1px solid rgba(0,0,0,0.25); }
+    .legend-img { max-width:180px; max-height:42px; object-fit:contain; display:block; background:transparent; }
+    .legend-row.wms { grid-template-columns:minmax(40px, auto) minmax(0,1fr); align-items:center; }
+    .legend-label small { display:block; color:var(--bladgroen); font-size:11px; font-weight:500; margin-top:1px; }
+
+    .ol-popup {
+      position:absolute;
+      background:white;
+      box-shadow:0 1px 10px rgba(0,0,0,0.22);
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--kant);
+      min-width:240px;
+      max-width:360px;
+      font:13px "Segoe UI", Arial, sans-serif;
+    }
+    .ol-popup:after, .ol-popup:before {
+      top:100%; border:solid transparent; content:" "; height:0; width:0; position:absolute; pointer-events:none;
+    }
+    .ol-popup:after { border-top-color:white; border-width:10px; left:48px; margin-left:-10px; }
+    .ol-popup:before { border-top-color:var(--kant); border-width:11px; left:48px; margin-left:-11px; }
+    .ol-popup-closer { text-decoration:none; position:absolute; top:6px; right:8px; color:#333; font-weight:700; }
+    .ol-popup-closer:after { content:"✕"; }
+    .ol-control button { background-color:var(--primaer); }
+    .ol-control button:hover, .ol-control button:focus { background-color:var(--bladgroen); }
+    .map-switcher {
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:20;
+      background:white;
+      border:1px solid var(--kant);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:6px;
+      display:flex;
+      gap:6px;
+      pointer-events:auto;
+    }
+    .map-switcher button { padding:7px 9px; font-size:12px; }
+    .map-switcher button.active { background:var(--primaer); color:white; }
+    .popup-title { color:var(--primaer); font-weight:750; font-size:15px; margin-bottom:6px; }
+    a { color:var(--primaer); font-weight:650; }
+
+    @media (max-width:1050px) {
+      .layout { grid-template-columns:1fr; }
+      .map-panel { height:540px; min-height:540px; }
+      #map { min-height:540px; }
+      .tab-nav { flex-wrap:wrap; }
+      .link-grid { grid-template-columns:1fr; }
+      .plantype-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Hvilke planer gælder for mig?</h1>
+  <p>Søg på en adresse og få et samlet overblik over de planer og planforslag, der ser ud til at berøre stedet.</p>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="box search-box">
+      <label class="box-title" for="addressSearch">Adresse</label>
+      <input id="addressSearch" type="search" autocomplete="off" placeholder="Søg fx Hovedgaden 12, 4000 Roskilde" />
+      <div id="suggestions" class="suggestions"></div>
+      <div class="button-row">
+        <button id="useAddress" class="primary" type="button" disabled>Vis planer</button>
+        <button id="clearAll" class="secondary" type="button">Nulstil</button>
+        <button id="saveResult" type="button" disabled>Gem resultat</button>
+      </div>
+      <div class="small-note">Adressesøgningen bruger Dataforsyningens adresseforslag.</div>
+      <div id="loadStatus" class="status-line">Vælg en adresse for at starte.</div>
+    </div>
+
+    <div class="answer-box">
+      <div class="answer-title">Samlet svar</div>
+      <p id="answerText" class="answer-text">Søg på en adresse for at få vist, hvilke planer der gælder for stedet.</p>
+      <div id="planOverviewLinkWrap" class="answer-actions">
+        <button id="openPlanOverview" class="primary" type="button">Gå til planoversigt</button>
+        <button id="openReport" type="button">Læs fortolkende rapport</button>
+        <button id="openPlantypeInfo" type="button">Forstå plantyperne</button>
+      </div>
+    </div>
+
+    <div class="box filter-box">
+      <span class="box-title">Planindhold og temaer</span>
+      <div class="small-note" style="margin-top:0;">Vælg hvilke dele af plangrundlaget der skal indgå i analysen og vises i oversigten.</div>
+      <select id="typeFilter" class="hidden-select" multiple aria-hidden="true">
+        <option value="Vedtaget lokalplan" selected>Vedtagne lokalplaner</option>
+        <option value="Aktivt lokalplanforslag" selected>Aktive lokalplanforslag</option>
+        <option value="Lokalplandelområde" selected>Lokalplandelområder</option>
+        <option value="Byggefelt" selected>Byggefelter</option>
+        <option value="Vedtaget kommuneplanramme" selected>Vedtagne kommuneplanrammer</option>
+        <option value="Administrativ retningslinje" selected>Administrative retningslinjer</option>
+        <option value="Landzonetilladelse" selected>Landzonetilladelser</option>
+      </select>
+      <div class="button-row">
+        <button id="selectAllTypes" type="button">Vælg alle</button>
+        <button id="clearTypes" class="secondary" type="button">Ryd alle</button>
+      </div>
+
+      <div class="filter-groups">
+        <section class="filter-group">
+          <div class="filter-group-title">Lokalplaner</div>
+          <div class="filter-group-subtitle">Vælg om analysen skal medtage vedtagne lokalplaner, aktive lokalplanforslag, lokalplandelområder og byggefelter.</div>
+          <div id="localplanTypeList" class="type-toggle-list"></div>
+        </section>
+
+        <section class="filter-group">
+          <div class="filter-group-title">Kommuneplanrammer</div>
+          <div class="filter-group-subtitle">Vælg om vedtagne kommuneplanrammer skal indgå i analysen.</div>
+          <div id="kommuneplanTypeList" class="type-toggle-list"></div>
+        </section>
+
+        <section class="filter-group">
+          <div class="filter-group-title">Landzonetilladelser</div>
+          <div class="filter-group-subtitle">Vælg om registrerede landzonetilladelser skal indgå i analysen.</div>
+          <div id="landzoneTypeList" class="type-toggle-list"></div>
+        </section>
+
+        <section class="filter-group">
+          <div class="filter-group-title">Administrative retningslinjer</div>
+          <div class="filter-group-subtitle">Vælg om administrative retningslinjer og de enkelte vedtagne § 11 a-temaer skal indgå i analysen.</div>
+          <div id="adminTypeList" class="type-toggle-list"></div>
+          <div id="adminLayerList" class="admin-layer-list" style="margin-top:8px;"></div>
+          <div class="button-row compact">
+            <button id="selectAllAdminLayers" type="button">Vælg alle retningslinjer</button>
+            <button id="clearAdminLayers" class="secondary" type="button">Ryd retningslinjer</button>
+          </div>
+          <div id="adminLayerSummary" class="admin-summary"></div>
+        </section>
+      </div>
+    </div>
+
+  </aside>
+
+  <main>
+    <nav class="tab-nav" aria-label="Dashboardfaner">
+      <button class="tab-button active" type="button" data-tab-target="mapTab">Kort</button>
+      <button class="tab-button" type="button" data-tab-target="overviewTab">Planoversigt</button>
+      <button class="tab-button" type="button" data-tab-target="reportTab">Rapport</button>
+      <button class="tab-button" type="button" data-tab-target="learnTab">Om plantyper</button>
+    </nav>
+
+    <section id="mapTab" class="tab-panel map-panel active">
+      <div id="map">
+        <div class="map-switcher" id="mapSwitcher">
+          <button type="button" data-base="light" class="active">Lyst kort</button>
+          <button type="button" data-base="osm">OpenStreetMap</button>
+          <button type="button" data-base="aerial">Luftfoto</button>
+        </div>
+        <div id="popup" class="ol-popup" style="display:none;">
+          <a href="#" id="popupCloser" class="ol-popup-closer"></a>
+          <div id="popupContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="overviewTab" class="tab-panel overview-panel">
+      <div class="overview-intro">
+        Planoversigten viser de plantræf, der er fundet for den valgte adresse. Klik på et kort eller en tabelrække for at gå tilbage til kortet og zoome til objektet.
+      </div>
+
+      <div class="result-list" id="resultCards">
+        <div class="empty-state">Ingen adresse valgt endnu.</div>
+      </div>
+
+      <div class="table-card">
+        <h2>Planoversigt</h2>
+        <table id="resultTable" class="display responsive nowrap">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Titel</th>
+              <th>Kommune</th>
+              <th>Zonestatus</th>
+              <th>Centrale oplysninger</th>
+              <th>Dato</th>
+              <th>Plan-id</th>
+              <th>Lag</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="reportTab" class="tab-panel report-panel">
+      <div id="interpretationReport" class="report-card">
+        <h2>Fortolkende rapport</h2>
+        <p class="report-muted">Søg på en adresse og kør analysen for at få en samlet, fortolkende læsning af plangrundlaget.</p>
+      </div>
+    </section>
+
+    <section id="learnTab" class="tab-panel learn-panel">
+      <div class="learn-intro">
+        Denne fane forklarer kort, hvad de vigtigste plantyper betyder, og hvordan de bør læses i forhold til en konkret adresse. Forklaringerne er vejledende og skal læses sammen med den konkrete plan og kommunens sagsbehandling.
+      </div>
+
+      <div class="plantype-search-panel" role="search" aria-label="Søg i plantyper">
+        <label for="plantypeSearch">Søg i plantyper</label>
+        <input id="plantypeSearch" type="search" placeholder="Søg fx lokalplan, byggefelt, landzone, § 11 a, bebyggelse eller kommuneplan..." autocomplete="off" />
+        <div class="plantype-search-meta">
+          <span id="plantypeSearchCount">Viser alle plantyper.</span>
+          <button id="clearPlantypeSearch" class="secondary" type="button">Ryd søgning</button>
+        </div>
+      </div>
+
+      <div id="plantypeNoResults" class="plantype-no-results">
+        Ingen plantypebokse matcher søgningen. Prøv fx “lokalplan”, “kommuneplan”, “landzone”, “byggefelt” eller “retningslinje”.
+      </div>
+
+      <div class="plantype-grid">
+        <article class="plantype-card featured">
+          <span class="plantype-tag">Overblik</span>
+          <h2>Sådan skal resultaterne læses</h2>
+          <p>Produktet viser et adressebaseret udsnit af plangrundlaget. Det betyder, at kort og rapport giver et screeningsbillede af, hvilke planer og temaer der ser ud til at berøre adressen.</p>
+          <ul>
+            <li><b>Lokalplaner</b> er typisk mest konkrete for den enkelte ejendom.</li>
+            <li><b>Lokalplandelområder og byggefelter</b> viser ofte, hvor i lokalplanen særlige regler gælder, og hvor byggeri kan placeres.</li>
+            <li><b>Kommuneplanrammer</b> sætter den overordnede ramme for lokalplanlægningen.</li>
+            <li><b>Retningslinjer</b> peger på arealinteresser og hensyn, som kan være relevante i planlægning og sagsbehandling.</li>
+            <li><b>Landzonetilladelser</b> er konkrete kommunale afgørelser i landzone og skal læses sammen med eventuelle vilkår i afgørelsen.</li>
+            <li><b>Forslag</b> er ikke endeligt vedtaget, men kan være vigtige, fordi de viser igangværende planlægning.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/kommuneplanlaegning" target="_blank" rel="noopener">Kommuneplanlægning</a>
+            <a href="https://www.plst.dk/lokalplanlaegning" target="_blank" rel="noopener">Lokalplanlægning</a>
+            <a href="https://www.plandata.dk/" target="_blank" rel="noopener">Plandata.dk</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Kommuneplan</span>
+          <h2>Kommuneplan</h2>
+          <p>Kommuneplanen er kommunens samlede og overordnede plan for, hvordan kommunen skal udvikle sig fysisk. Den handler blandt andet om byudvikling, boliger, erhverv, natur, landskab, klima, trafik og andre arealinteresser.</p>
+          <ul>
+            <li>Den er strategisk og overordnet.</li>
+            <li>Den sætter retningen for kommunens videre planlægning, men giver normalt ikke i sig selv en konkret ret til at bygge på en bestemt grund.</li>
+            <li>Den danner grundlag for kommuneplanrammer, kommuneplanretningslinjer og senere lokalplaner efter planlovens system.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/kommuneplanlaegning/kommuneplanens-rolle" target="_blank" rel="noopener">Kommuneplanens rolle</a>
+            <a href="https://www.plandata.dk/vejledning/kommuneplanlaegning/kommuneplaner" target="_blank" rel="noopener">Kommuneplaner i Plandata</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Kommuneplanramme</span>
+          <h2>Kommuneplanramme</h2>
+          <p>En kommuneplanramme er et afgrænset område i kommuneplanen. Den fortæller, hvad området overordnet kan bruges til, og hvilke rammer en senere lokalplan normalt skal holde sig inden for.</p>
+          <ul>
+            <li>Rammer kan fx handle om anvendelse, bebyggelsesprocent, højde, zonestatus og særlige bestemmelser.</li>
+            <li>Rammen er vigtig, hvis en ny lokalplan skal udarbejdes.</li>
+            <li>Rammen er ofte ikke nok til at afgøre, hvad der konkret må bygges på en ejendom. Den skal læses sammen med lokalplaner, byggeregler og kommunens konkrete vurdering.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/kommuneplanlaegning/struktur-og-indhold" target="_blank" rel="noopener">Struktur og indhold</a>
+            <a href="https://www.plandata.dk/teknisk-information/datamodeller/kommuneplanrammer" target="_blank" rel="noopener">Datamodel: kommuneplanrammer</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Lokalplan</span>
+          <h2>Lokalplan</h2>
+          <p>En lokalplan er den mest detaljerede plantype i oversigten. For en borger er det ofte lokalplanen, der er vigtigst, fordi den kan fastlægge konkrete regler for en bestemt ejendom eller et bestemt område.</p>
+          <ul>
+            <li>Den kan regulere fx anvendelse, bebyggelse, veje, friarealer, bevaring og udformning.</li>
+            <li>Den er normalt det vigtigste dokument for at forstå konkrete muligheder og begrænsninger på en adresse.</li>
+            <li>Planens bestemmelser og kortbilag bør altid læses sammen.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/lokalplanlaegning/lokalplanret-og-pligt" target="_blank" rel="noopener">Lokalplanret og -pligt</a>
+            <a href="https://www.plst.dk/lokalplanlaegning/retsvirkning" target="_blank" rel="noopener">Retsvirkning</a>
+            <a href="https://www.plandata.dk/vejledning/lokalplanlaegning/lokalplaner" target="_blank" rel="noopener">Lokalplaner i Plandata</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Lokalplandelområde</span>
+          <h2>Lokalplandelområde</h2>
+          <p>Et lokalplandelområde er en underopdeling af en lokalplan. En lokalplan kan nemlig dække et større område, hvor der gælder forskellige regler i forskellige dele af planen.</p>
+          <ul>
+            <li>Delområder bruges typisk til at vise, at én del af lokalplanen fx må bruges til boliger, mens en anden del må bruges til erhverv, fællesarealer, veje eller tekniske anlæg.</li>
+            <li>For en borger kan delområdet være vigtigt, fordi det kan være delområdet — og ikke kun hele lokalplanen — der fortæller, hvilke bestemmelser der gælder for netop adressen.</li>
+            <li>Delområder skal læses sammen med lokalplanens tekst, kortbilag og relationsfelter i Plandata, som kan koble delområdet til den overordnede lokalplan.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plandata.dk/vejledning/lokalplanlaegning/lokalplaner" target="_blank" rel="noopener">Lokalplaner i Plandata</a>
+            <a href="https://www.plandata.dk/teknisk-information/datamodeller/lokalplaner" target="_blank" rel="noopener">Datamodel: lokalplaner</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Byggefelt</span>
+          <h2>Byggefelt</h2>
+          <p>Et byggefelt er et geografisk afgrænset felt i en lokalplan, hvor byggeri kan være placeret eller reguleret. Det siger ikke alene, hvad man må bygge, men viser ofte hvor byggeri kan ligge.</p>
+          <ul>
+            <li>Byggefelter kan være relevante, hvis man vil forstå muligheder for ny bebyggelse, tilbygning eller placering af bygninger på en grund.</li>
+            <li>Et byggefelt skal altid læses sammen med lokalplanens øvrige bestemmelser om fx anvendelse, højde, etageantal, afstande, bebyggelsesprocent, materialer og friarealer.</li>
+            <li>Hvis rapporten viser relationsoplysninger, bør byggefeltets relation til lokalplan og eventuelt delområde sammenholdes med lokalplanens plan-id og kortbilag.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/lokalplanlaegning" target="_blank" rel="noopener">Lokalplanlægning</a>
+            <a href="https://www.plandata.dk/teknisk-information/datamodeller/lokalplaner" target="_blank" rel="noopener">Datamodel: lokalplaner</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Lokalplanforslag</span>
+          <h2>Lokalplanforslag</h2>
+          <p>Et lokalplanforslag viser, at kommunen arbejder med nye planregler for området. Det kan være i offentlig høring, og indholdet kan ændre sig, før planen bliver endeligt vedtaget.</p>
+          <ul>
+            <li>Forslaget kan være vigtigt, fordi det viser ny planlægning for området.</li>
+            <li>Det er ikke det samme som en vedtaget lokalplan.</li>
+            <li>Høringsperioden er relevant, hvis man vil afgive bemærkninger.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/lokalplanlaegning/tilvejebringelse" target="_blank" rel="noopener">Tilvejebringelse</a>
+            <a href="https://www.plandata.dk/find-planer/find-planer-i-hoering" target="_blank" rel="noopener">Find planer i høring</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Kommuneplanretningslinjer</span>
+          <h2>Administrative retningslinjer</h2>
+          <p>Kommuneplanens retningslinjer beskriver de arealinteresser og hensyn, som kommunen skal varetage i planlægningen. I dette dashboard vises de som administrative retningslinjer og er knyttet til udvalgte temaer i planlovens § 11 a.</p>
+          <ul>
+            <li>De kan fx handle om detailhandel, tekniske anlæg, støj, landskab, natur, lavbundsarealer eller oversvømmelse.</li>
+            <li>Et træf betyder ikke nødvendigvis et forbud, men at et hensyn eller tema kan være relevant.</li>
+            <li>Retningslinjer bør læses sammen med den konkrete kommuneplan og eventuelle lokalplaner.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/kommuneplanlaegning/struktur-og-indhold" target="_blank" rel="noopener">Kommuneplanens indhold</a>
+            <a href="https://www.plandata.dk/teknisk-information/datamodeller/kommuneplanretningslinjer" target="_blank" rel="noopener">Datamodel: retningslinjer</a>
+          </div>
+        </article>
+
+        <article class="plantype-card">
+          <span class="plantype-tag">Landzonetilladelse</span>
+          <h2>Landzonetilladelse</h2>
+          <p>En landzonetilladelse er en konkret kommunal afgørelse efter planlovens landzoneregler. Den bruges typisk, når en ejer eller ansøger ønsker at ændre anvendelse, opføre byggeri eller foretage udstykning i landzone.</p>
+          <ul>
+            <li>Et træf betyder, at der i Plandata findes en registreret landzonetilladelse, som geografisk berører adressen eller det søgte punkt.</li>
+            <li>Tilladelsen kan have konkrete vilkår. Derfor bør afgørelsens tekst, dato, formål, anvendelse og eventuelle sagsoplysninger altid kontrolleres.</li>
+            <li>Landzonetilladelser skal læses sammen med zonestatus, eventuelle lokalplaner, kommuneplanrammer og relevante kommuneplanretningslinjer. En tilladelse kan være konkret og tids-/sagsbestemt, mens planerne viser den bredere planmæssige ramme.</li>
+          </ul>
+          <div class="plantype-links">
+            <a href="https://www.plst.dk/landzone" target="_blank" rel="noopener">Landzone</a>
+            <a href="https://www.plandata.dk/" target="_blank" rel="noopener">Plandata.dk</a>
+            <a href="https://www.retsinformation.dk/eli/lta/2024/572" target="_blank" rel="noopener">Planloven på Retsinformation</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ol@10.3.1/dist/ol.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+<script>
+(function() {
+  "use strict";
+
+  const WFS_BASE = "https://geoserver.plandata.dk/geoserver/wfs";
+  const WMS_BASE = "https://geoserver.plandata.dk/geoserver/wms";
+  const TODAY = new Date();
+  TODAY.setHours(0, 0, 0, 0);
+  const TODAY_YMD = ymdCompact(TODAY);
+
+  const BASE_PLAN_SOURCES = [
+    {
+      type: "Vedtaget lokalplan",
+      color: "#2C4B39",
+      candidates: [
+        "theme_pdk_lokalplan_vedtaget",
+        "theme_pdk:theme_pdk_lokalplan_vedtaget",
+        "theme_pdk:lokalplan_vedtaget",
+        "lokalplan_vedtaget"
+      ]
+    },
+    {
+      type: "Aktivt lokalplanforslag",
+      color: "#E2CF83",
+      activeOnly: true,
+      // Fast PlandataDK-temalag for lokalplanforslag. Dette er det lag,
+      // som skal bruges til hentning og visning af lokalplanforslag i produktet.
+      candidates: [
+        "theme_pdk_lokalplan_forslag",
+        "theme_pdk:theme_pdk_lokalplan_forslag"
+      ]
+    },
+    {
+      type: "Lokalplandelområde",
+      color: "#75866F",
+      // Delområder er underopdelinger af en vedtaget lokalplan og skal læses
+      // sammen med den lokalplan, de hører til.
+      candidates: [
+        "theme_pdk_lokalplandelomraade_vedtaget",
+        "theme_pdk:theme_pdk_lokalplandelomraade_vedtaget"
+      ]
+    },
+    {
+      type: "Byggefelt",
+      color: "#3E6B55",
+      // Byggefelter er konkrete arealer inden for en lokalplan eller et delområde,
+      // hvor bebyggelse kan være reguleret mere præcist.
+      candidates: [
+        "theme_pdk_byggefelt_vedtaget",
+        "theme_pdk:theme_pdk_byggefelt_vedtaget"
+      ]
+    },
+    {
+      type: "Vedtaget kommuneplanramme",
+      color: "#95A396",
+      // Fast PlandataDK-lag for alle vedtagne kommuneplanrammer.
+      // Det præcise lag er nødvendigt, da andre kommuneplanramme-lag kan være
+      // tomme, forkerte eller ikke være den samlede vedtagne visning.
+      candidates: [
+        "theme_pdk_kommuneplanramme_alle_vedtaget_v",
+        "theme_pdk:theme_pdk_kommuneplanramme_alle_vedtaget_v"
+      ]
+    },
+    {
+      type: "Landzonetilladelse",
+      color: "#B7A98D",
+      // Landzonetilladelser er kommunale afgørelser efter planlovens landzoneregler.
+      // Plandata-lagene kan variere lidt på tværs af serviceversioner, så der anvendes
+      // flere kandidater med det vedtagne/registrerede tema først.
+      candidates: [
+        "theme_pdk_landzonetilladelse_vedtaget",
+        "theme_pdk:theme_pdk_landzonetilladelse_vedtaget",
+        "theme_pdk_landzonetilladelse_v",
+        "theme_pdk:theme_pdk_landzonetilladelse_v",
+        "theme_pdk_landzonetilladelse",
+        "theme_pdk:theme_pdk_landzonetilladelse",
+        "pdk:theme_pdk_landzonetilladelse_vedtaget"
+      ]
+    }
+  ];
+
+  const ADMIN_GUIDELINE_FAMILIES = [
+    { paragraph:"§ 11 a nr. 1", title:"Byzone/sommerhusområde", prefix:"theme_pdk_byzonesommerhusomraade_", color:"#536152" },
+    { paragraph:"§ 11 a nr. 3", title:"Detailhandel", prefix:"theme_pdk_detailhandel_", color:"#95A396" },
+    { paragraph:"§ 11 a nr. 4", title:"Planlagte trafikanlæg", prefix:"theme_pdk_planlagttrafikanlaeg_", color:"#A6B29A" },
+    { paragraph:"§ 11 a nr. 5", title:"Planlagte tekniske anlæg", prefix:"theme_pdk_planlagttekniskanlaeg_", color:"#E0D8CF" },
+    { paragraph:"§ 11 a nr. 6", title:"Virksomhed med særligt beliggenhedskrav", prefix:"theme_pdk_virksomhedsaerligtbeliggenhedskrav_", color:"#E2CF83" },
+    { paragraph:"§ 11 a nr. 7", title:"Støjbelastet areal", prefix:"theme_pdk_stoejbelastetareal_", color:"#75866F" },
+    { paragraph:"§ 11 a nr. 10", title:"Værdifuldt landbrugsområde", prefix:"theme_pdk_vaerdifuldtlandbrugsomraade_", color:"#3E6B55" },
+    { paragraph:"§ 11 a nr. 11", title:"Store husdyrbrug", prefix:"theme_pdk_storehusdyrbrug_", color:"#B7A98D" },
+    { paragraph:"§ 11 a nr. 12", title:"Skovrejsningsområde", prefix:"theme_pdk_skovrejsningsomraade_", color:"#536152" },
+    { paragraph:"§ 11 a nr. 13", title:"Lavbundsareal", prefix:"theme_pdk_lavbundsareal_", color:"#95A396" },
+    { paragraph:"§ 11 a nr. 14", title:"Naturbeskyttelsesområde", prefix:"theme_pdk_naturbeskyttelsesomraade_", color:"#A6B29A" },
+    { paragraph:"§ 11 a nr. 15", title:"Kulturhistorisk bevaringsværdi", prefix:"theme_pdk_kulturhistoriskbevaringsvaerdi_", color:"#E0D8CF" },
+    { paragraph:"§ 11 a nr. 16", title:"Bevaringsværdige landskaber", prefix:"theme_pdk_bevaringsvaerdigelandskaber_", color:"#E2CF83" },
+    { paragraph:"§ 11 a nr. 17", title:"Specifik geologisk bevaringsværdi", prefix:"theme_pdk_specifikgeologiskbevaringsvaerdi_", color:"#75866F" },
+    { paragraph:"§ 11 a nr. 18", title:"Oversvømmelse og erosion", prefix:"theme_pdk_oversvoemerosion_", color:"#3E6B55" },
+    { paragraph:"§ 11 a nr. 20", title:"Anvendelse af vand, sø og kyst", prefix:"theme_pdk_anvendelsevandsoekyst_", color:"#B7A98D" },
+    { paragraph:"§ 11 a nr. 24", title:"Omdannelseslandsby", prefix:"theme_pdk_omdannelseslandsby_", color:"#536152" },
+    { paragraph:"§ 11 a nr. 26", title:"Produktionserhvervsområde", prefix:"theme_pdk_produktionserhvervsomraade_", color:"#95A396" },
+    { paragraph:"§ 11 a nr. 27", title:"Konsekvensområde", prefix:"theme_pdk_konsekvensomraade_", color:"#A6B29A" },
+    { paragraph:"§ 11 a nr. 28", title:"Transformationsområde", prefix:"theme_pdk_transformationsomraade_", color:"#E0D8CF" },
+    { paragraph:"§ 11 a nr. 30", title:"Tekniske anlægs konsekvensområde", prefix:"theme_pdk_tekniskanlaegkonsekvensomraade_", color:"#E2CF83" }
+  ];
+
+  const FIELD_CANDIDATES = {
+    id: ["planid", "plan_id", "lokalplanid", "rammeid", "ramme_id", "rammeid", "ramme", "id", "objectid", "objektid", "gml_id"],
+    title: ["plannavn", "rammenavn", "rammenavn1", "rammebetegnelse", "rammebetegn", "rammebetegnelse1", "navn", "plantitel", "titel", "lokalplannavn", "plan_navn", "anvtekst", "anvtekst1", "anvendelse", "generelanvendelse", "generel_anvendelse", "specifikanvendelse", "specifik_anvendelse"],
+    municipality: ["kommunenavn", "komnavn", "kommune", "kommune_navn", "kom_navn", "kommuner", "kommunekode", "komkode", "komnr", "kommunenr"],
+    zone: ["zonestatus", "zone", "zone_status", "planzone", "zonekode"],
+    start: ["datostart", "dato_start", "hoeringstart", "høringsstart", "offentligstart", "startdato", "start_dato"],
+    end: ["datoslut", "dato_slut", "hoeringslut", "høringsslut", "offentligslut", "slutdato", "slut_dato"],
+    adopted: ["datovedt", "dato_vedtaget", "datovedtaget", "vedtaget", "vedtagelsesdato", "ikraftdato", "ikrafttraedelsesdato", "dato"],
+    url: ["url", "planurl", "doklink", "link", "plandokument", "pdf", "plandokumenturl", "retsinfo", "retsinformation"],
+    use: ["anvendelse", "anvtekst", "anvendelsegenerel", "generelanvendelse", "generel_anvendelse", "specifikanvendelse", "specifik_anvendelse", "rammeanvendelse", "ramme_anvendelse", "arealanvendelse", "formaal", "formål"],
+    building: ["bebyggelse", "bebyggelsesreg", "bebyggelsesbestemmelser", "bebyggelsesbest", "bebyggelsesprocent", "bebyg_pct", "maxbebyg", "max_bebyggelse", "maksbebyggelsesprocent", "maks_bygningshoejde", "maks_bygningshøjde", "bygningshoejde", "bygningshøjde", "etageantal", "maxetager", "hoejde", "højde"],
+    decision: ["afgoerelse", "afgørelse", "tilladelse", "sagstype", "sagsnr", "journalnr", "journalnummer", "landzonetilladelse", "dispensation", "tilladelsestype", "status"],
+    purpose: ["formaal", "formål", "projekt", "projektnavn", "beskrivelse", "tekst", "notat", "titel", "navn"],
+    applicant: ["ansoeger", "ansøger", "ejer", "bygherre"],
+    relation: ["lokalplanid", "lokalplan_id", "planid", "plan_id", "lp_planid", "lokalplanplanid", "lokalplan", "parentplanid", "parent_planid", "relation", "relateretplanid", "relateret_planid"],
+    subarea: ["delomraade", "delområde", "delomraadenavn", "delområdenavn", "delomraadeid", "delområdeid", "delomradenr", "delområdenr", "omraade", "område", "omraadenavn", "områdenavn"],
+    buildingField: ["byggefelt", "byggefeltnavn", "byggefeltid", "byggefeltnr", "felt", "feltnavn", "feltnr"]
+  };
+
+  let map;
+  let table;
+  let addressMarker = null;
+  let selectedAddress = null;
+  let allResults = [];
+  let visibleResults = [];
+  let featureSource;
+  let featureLayer;
+  let wmsLayerGroup;
+  let wmsLayerByName = new Map();
+  let addressSource;
+  let addressLayer;
+  let popupOverlay;
+  let baseLayers = {};
+  let featureLayerByKey = new Map();
+
+  function byId(id) { return document.getElementById(id); }
+
+  function setStatus(message, type = "") {
+    const el = byId("loadStatus");
+    el.className = "status-line" + (type ? " " + type : "");
+    el.innerHTML = message;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function normalize(value) {
+    return String(value ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  }
+
+  function cleanText(value, fallback = "Ikke oplyst") {
+    const s = String(value ?? "").trim();
+    if (!s || ["na", "null", "none", "undefined"].includes(s.toLowerCase())) return fallback;
+    return s;
+  }
+
+  function formatDate(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("da-DK", { day:"2-digit", month:"2-digit", year:"numeric" });
+  }
+
+  function ymdCompact(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}${m}${d}`;
+  }
+
+  function parseDateValue(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || ["na", "null", "none"].includes(raw.toLowerCase())) return null;
+    let m = raw.match(/^(\d{4})(\d{2})(\d{2})(?:\.0+)?$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    m = raw.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return null;
+  }
+
+  function findProp(properties, candidates) {
+    const keys = Object.keys(properties || {});
+    const lowerMap = new Map(keys.map(k => [k.toLowerCase(), k]));
+    for (const candidate of candidates) {
+      if (lowerMap.has(candidate.toLowerCase())) return properties[lowerMap.get(candidate.toLowerCase())];
+    }
+    for (const key of keys) {
+      const nk = normalize(key);
+      if (candidates.some(c => nk.includes(normalize(c)))) return properties[key];
+    }
+    return "";
+  }
+
+  function firstNonEmpty(...values) {
+    for (const value of values) {
+      if (value !== null && value !== undefined && String(value).trim() !== "") return value;
+    }
+    return "";
+  }
+
+  function normalizeZone(value) {
+    const s = cleanText(value, "Ikke oplyst");
+    const n = normalize(s);
+    if (!n || ["ikke oplyst", "na", "null", "none", "undefined"].includes(n)) return "Ikke oplyst";
+    if (n.includes("byzone")) return "Byzone";
+    if (n.includes("landzone")) return "Landzone";
+    if (n.includes("sommerhus")) return "Sommerhusområde";
+    return s;
+  }
+
+  function asLink(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw || ["na", "null", "none", "ikke oplyst"].includes(normalize(raw))) return "";
+    const hit = raw.match(/https?:\/\/[^\s<>"]+/i);
+    const url = hit ? hit[0] : raw;
+    if (/^https?:\/\//i.test(url)) return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Åbn</a>`;
+    return escapeHtml(raw);
+  }
+
+  function selectedValues(selectId) {
+    return Array.from(byId(selectId).selectedOptions).map(o => o.value);
+  }
+
+  function setAllSelected(selectId, selected) {
+    Array.from(byId(selectId).options).forEach(o => o.selected = selected);
+  }
+
+  function renderOverviewTypeSelector() {
+    const selected = new Set(selectedValues("typeFilter"));
+    const groups = [
+      {
+        targetId:"localplanTypeList",
+        items:[
+          { value:"Vedtaget lokalplan", label:"Vedtagne lokalplaner", note:"Gældende lokalplaner for adressen." },
+          { value:"Aktivt lokalplanforslag", label:"Aktive lokalplanforslag", note:"Forslag i høring, som berører adressen." },
+          { value:"Lokalplandelområde", label:"Lokalplandelområder", note:"Underområder i lokalplanen med særskilte bestemmelser." },
+          { value:"Byggefelt", label:"Byggefelter", note:"Arealer hvor bebyggelse kan være placeret eller reguleret." }
+        ]
+      },
+      {
+        targetId:"kommuneplanTypeList",
+        items:[
+          { value:"Vedtaget kommuneplanramme", label:"Vedtagne kommuneplanrammer", note:"Gældende kommuneplanrammer for adressen." }
+        ]
+      },
+      {
+        targetId:"landzoneTypeList",
+        items:[
+          { value:"Landzonetilladelse", label:"Landzonetilladelser", note:"Kommunale tilladelser til ændringer i landzone." }
+        ]
+      },
+      {
+        targetId:"adminTypeList",
+        items:[
+          { value:"Administrativ retningslinje", label:"Administrative retningslinjer", note:"Vedtagne § 11 a-temaer, som berører adressen." }
+        ]
+      }
+    ];
+
+    groups.forEach(group => {
+      const el = byId(group.targetId);
+      if (!el) return;
+      el.innerHTML = group.items.map(item => `
+        <label class="type-toggle-row">
+          <input type="checkbox" class="overview-type-toggle" value="${escapeHtml(item.value)}" ${selected.has(item.value) ? 'checked' : ''} />
+          <span>${escapeHtml(item.label)}<small>${escapeHtml(item.note)}</small></span>
+        </label>
+      `).join("");
+    });
+  }
+
+  function syncTypeFilterFromCheckboxes() {
+    const selected = new Set(Array.from(document.querySelectorAll('.overview-type-toggle'))
+      .filter(cb => cb.checked)
+      .map(cb => cb.value));
+    Array.from(byId("typeFilter").options).forEach(option => {
+      option.selected = selected.has(option.value);
+    });
+  }
+
+  function setOverviewTypeCheckboxes(checked) {
+    document.querySelectorAll('.overview-type-toggle').forEach(cb => { cb.checked = checked; });
+    syncTypeFilterFromCheckboxes();
+  }
+
+  function debounce(fn, wait) {
+    let timer = null;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), wait);
+    };
+  }
+
+  async function fetchJson(url) {
+    const res = await fetch(url, { mode:"cors", cache:"no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function wmsLayerName(layerName) {
+    return String(layerName || "").trim();
+  }
+
+  function wmsLegendUrl(layerName) {
+    const params = new URLSearchParams({
+      service:"WMS",
+      version:"1.3.0",
+      request:"GetLegendGraphic",
+      format:"image/png",
+      layer:wmsLayerName(layerName)
+    });
+    return `${WMS_BASE}?${params.toString()}`;
+  }
+
+  function clearWmsResultLayers() {
+    if (!wmsLayerGroup) return;
+    wmsLayerGroup.getLayers().clear();
+    wmsLayerByName.clear();
+  }
+
+  function activeProposalCql() {
+    return `datostart <= ${TODAY_YMD} AND datoslut >= ${TODAY_YMD}`;
+  }
+
+  function syncWmsResultLayers(items) {
+    if (!wmsLayerGroup) return;
+    clearWmsResultLayers();
+    const seen = new Map();
+    items.forEach(item => {
+      const layerName = wmsLayerName(item.sourceLayer);
+      if (!layerName || seen.has(layerName)) return;
+      seen.set(layerName, item);
+    });
+
+    Array.from(seen.entries()).forEach(([layerName, item], index) => {
+      const params = {
+        LAYERS: layerName,
+        FORMAT: "image/png",
+        TRANSPARENT: true
+      };
+      if (item.activeOnly) params.CQL_FILTER = activeProposalCql();
+
+      const layer = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+          url: WMS_BASE,
+          params,
+          ratio: 1,
+          serverType: "geoserver",
+          crossOrigin: "anonymous"
+        }),
+        opacity: 0.82,
+        zIndex: 20 + index
+      });
+      wmsLayerGroup.getLayers().push(layer);
+      wmsLayerByName.set(layerName, layer);
+    });
+  }
+
+  function initMap() {
+    const light = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: "https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        attributions: "&copy; OpenStreetMap-bidragsydere &copy; CARTO",
+        maxZoom: 20
+      }),
+      visible: true
+    });
+    const osm = new ol.layer.Tile({
+      source: new ol.source.OSM(),
+      visible: false
+    });
+    const aerial = new ol.layer.Tile({
+      source: new ol.source.XYZ({
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attributions: "Tiles &copy; Esri",
+        maxZoom: 19
+      }),
+      visible: false
+    });
+    baseLayers = { light, osm, aerial };
+
+    featureSource = new ol.source.Vector();
+    addressSource = new ol.source.Vector();
+
+    wmsLayerGroup = new ol.layer.Group({ layers: [], zIndex: 20 });
+    featureLayer = new ol.layer.Vector({ source: featureSource, style: styleForFeature, zIndex: 40 });
+    addressLayer = new ol.layer.Vector({ source: addressSource, style: addressStyle, zIndex: 60 });
+
+    map = new ol.Map({
+      target: "map",
+      layers: [light, osm, aerial, wmsLayerGroup, featureLayer, addressLayer],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([10.2, 56.1]),
+        zoom: 7
+      })
+    });
+
+    const popupElement = byId("popup");
+    popupOverlay = new ol.Overlay({
+      element: popupElement,
+      autoPan: { animation: { duration: 180 } },
+      positioning: "bottom-left",
+      offset: [0, -10]
+    });
+    map.addOverlay(popupOverlay);
+    byId("popupCloser").addEventListener("click", event => {
+      event.preventDefault();
+      closePopup();
+    });
+
+    map.on("singleclick", event => {
+      let hitFeature = null;
+      map.forEachFeatureAtPixel(event.pixel, feature => {
+        hitFeature = feature;
+        return true;
+      });
+      if (!hitFeature) {
+        closePopup();
+        return;
+      }
+      const html = hitFeature.get("popupHtml");
+      if (html) openPopup(event.coordinate, html);
+    });
+
+    document.querySelectorAll("#mapSwitcher button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-base");
+        Object.entries(baseLayers).forEach(([name, layer]) => layer.setVisible(name === key));
+        document.querySelectorAll("#mapSwitcher button").forEach(b => b.classList.toggle("active", b === btn));
+      });
+    });
+
+    updateLegend([]);
+  }
+
+  function closePopup() {
+    if (popupOverlay) popupOverlay.setPosition(undefined);
+    const popup = byId("popup");
+    if (popup) popup.style.display = "none";
+  }
+
+  function openPopup(coordinate, html) {
+    byId("popupContent").innerHTML = html;
+    byId("popup").style.display = "block";
+    popupOverlay.setPosition(coordinate);
+  }
+
+  function styleForFeature(feature) {
+    // WMS står for den synlige kortsignatur. WFS-vektoren bevares som
+    // næsten usynlig klikflade og til zoom/analyse.
+    const geometryType = feature.getGeometry() ? feature.getGeometry().getType() : "";
+    const fill = new ol.style.Fill({ color: "rgba(44,75,57,0.015)" });
+    const stroke = new ol.style.Stroke({ color: "rgba(44,75,57,0.06)", width: 5 });
+    if (geometryType === "Point" || geometryType === "MultiPoint") {
+      return new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 10,
+          fill: new ol.style.Fill({ color: "rgba(44,75,57,0.02)" }),
+          stroke: new ol.style.Stroke({ color: "rgba(44,75,57,0.12)", width: 5 })
+        })
+      });
+    }
+    return new ol.style.Style({ fill, stroke });
+  }
+
+  function addressStyle() {
+    return new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 8,
+        fill: new ol.style.Fill({ color: "#E2CF83" }),
+        stroke: new ol.style.Stroke({ color: "#2C4B39", width: 3 })
+      })
+    });
+  }
+
+  function hexToRgba(hex, alpha) {
+    const h = String(hex || "#2C4B39").replace("#", "");
+    const bigint = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function geoJsonFeaturesToOl(item) {
+    const features = new ol.format.GeoJSON().readFeatures(item.geojson, {
+      dataProjection: "EPSG:4326",
+      featureProjection: "EPSG:3857"
+    });
+    features.forEach(feature => {
+      feature.set("item", item);
+      feature.set("itemKey", item.key);
+      feature.set("popupHtml", makePopup(item));
+    });
+    return features;
+  }
+
+  function extentForItems(items) {
+    let extent = ol.extent.createEmpty();
+    let hasExtent = false;
+    if (addressMarker) {
+      ol.extent.extend(extent, addressMarker.getGeometry().getExtent());
+      hasExtent = true;
+    }
+    items.forEach(item => {
+      const features = featureLayerByKey.get(item.key) || geoJsonFeaturesToOl(item);
+      features.forEach(feature => {
+        ol.extent.extend(extent, feature.getGeometry().getExtent());
+        hasExtent = true;
+      });
+    });
+    return hasExtent ? extent : null;
+  }
+
+
+  function initTable() {
+    table = $("#resultTable").DataTable({
+      data: [],
+      responsive: true,
+      pageLength: 25,
+      lengthMenu: [[10,25,50,100,-1], ["10","25","50","100","Alle"]],
+      paging: true,
+      scrollX: true,
+      autoWidth: false,
+      order: [[0, "asc"], [1, "asc"]],
+      createdRow: function(row, data) {
+        row.dataset.resultKey = data.key;
+        row.title = "Klik for at zoome til objektet i kortet";
+      },
+      language: {
+        search: "Søg i tabel:",
+        lengthMenu: "Vis _MENU_ rækker",
+        info: "Viser _START_ til _END_ af _TOTAL_ rækker",
+        infoEmpty: "Ingen rækker",
+        infoFiltered: "(filtreret fra _MAX_ rækker)",
+        zeroRecords: "Ingen matchende rækker",
+        paginate: { first:"Første", last:"Sidste", next:"Næste", previous:"Forrige" }
+      },
+      columns: [
+        { data:"type" },
+        { data:"title" },
+        { data:"municipality" },
+        { data:"zone" },
+        { data:"centralInfo" },
+        { data:"dateText" },
+        { data:"planId" },
+        { data:"sourceLayer" },
+        { data:"link", orderable:false }
+      ]
+    });
+  }
+
+  function bboxAround(lon, lat, meters) {
+    const dLat = meters / 111320;
+    const dLon = meters / (111320 * Math.cos(lat * Math.PI / 180));
+    return [lon - dLon, lat - dLat, lon + dLon, lat + dLat];
+  }
+
+  function selectedAdminFamilies() {
+    return Array.from(document.querySelectorAll(".admin-layer-toggle"))
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+  }
+
+  function currentPlanSources() {
+    const selectedTypes = selectedValues("typeFilter");
+    if (!selectedTypes.length) return [];
+
+    const includeAdmin = selectedTypes.includes("Administrativ retningslinje");
+    const sources = BASE_PLAN_SOURCES.filter(source => selectedTypes.includes(source.type));
+    if (!includeAdmin) return sources;
+
+    const selectedKeys = new Set(selectedAdminFamilies());
+    ADMIN_GUIDELINE_FAMILIES.forEach((family, index) => {
+      const key = family.prefix;
+      if (!selectedKeys.has(key)) return;
+      const layer = `${family.prefix}vedtaget`;
+      sources.push({
+        type:"Administrativ retningslinje",
+        color:family.color,
+        adminTitle:family.title,
+        adminParagraph:family.paragraph,
+        adminFamilyKey:key,
+        candidates:[layer, `theme_pdk:${layer}`, `pdk:${layer}`]
+      });
+    });
+    return sources;
+  }
+
+  function renderAdminLayerSelector() {
+    const list = byId("adminLayerList");
+    if (!list) return;
+    list.innerHTML = ADMIN_GUIDELINE_FAMILIES.map(family => `
+      <label class="admin-layer-row">
+        <input type="checkbox" class="admin-layer-toggle" value="${escapeHtml(family.prefix)}" checked />
+        <span>${escapeHtml(family.title)}<small>${escapeHtml(family.paragraph)} · ${escapeHtml(family.prefix)}vedtaget</small></span>
+      </label>
+    `).join("");
+    updateAdminLayerSummary();
+  }
+
+  function updateAdminLayerSummary() {
+    const el = byId("adminLayerSummary");
+    if (!el) return;
+    const selected = selectedAdminFamilies().length;
+    el.textContent = `${selected} af ${ADMIN_GUIDELINE_FAMILIES.length} retningslinjetemaer valgt.`;
+  }
+
+  function buildWfsUrl(typeName, source, lon, lat, bufferMeters) {
+    const bbox = bboxAround(lon, lat, bufferMeters);
+    const params = new URLSearchParams({
+      service:"WFS",
+      version:"2.0.0",
+      request:"GetFeature",
+      typeNames:typeName,
+      outputFormat:"application/json",
+      srsName:"EPSG:4326",
+      count:"1000",
+      bbox:`${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]},EPSG:4326`
+    });
+    if (source.activeOnly) {
+      params.set("CQL_FILTER", activeProposalCql());
+    }
+    return `${WFS_BASE}?${params.toString()}`;
+  }
+
+  function buildWfsUrlV11(typeName, source, lon, lat, bufferMeters) {
+    const bbox = bboxAround(lon, lat, bufferMeters);
+    const params = new URLSearchParams({
+      service:"WFS",
+      version:"1.1.0",
+      request:"GetFeature",
+      typeName:typeName,
+      outputFormat:"application/json",
+      srsName:"EPSG:4326",
+      maxFeatures:"1000",
+      bbox:`${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]},EPSG:4326`
+    });
+    if (source.activeOnly) {
+      params.set("CQL_FILTER", activeProposalCql());
+    }
+    return `${WFS_BASE}?${params.toString()}`;
+  }
+
+  async function fetchLayerForPoint(source, lon, lat) {
+    let lastError = null;
+    let firstValidEmpty = null;
+    const buffers = source.type === "Vedtaget kommuneplanramme" || source.type === "Aktivt lokalplanforslag" || source.type === "Administrativ retningslinje" || source.type === "Landzonetilladelse"
+      ? [20, 100, 250, 500]
+      : [5, 35, 100, 250];
+    for (const typeName of source.candidates) {
+      for (const buffer of buffers) {
+        const urls = [
+          buildWfsUrl(typeName, source, lon, lat, buffer),
+          buildWfsUrlV11(typeName, source, lon, lat, buffer)
+        ];
+        for (const url of urls) {
+          try {
+            const json = await fetchJson(url);
+            if (json && Array.isArray(json.features)) {
+              if (json.features.length > 0) return { typeName, features: json.features };
+              if (!firstValidEmpty) firstValidEmpty = { typeName, features: [] };
+            }
+          } catch (e) {
+            lastError = e;
+            console.warn("Kunne ikke hente", source.type, typeName, e);
+          }
+        }
+      }
+    }
+    if (firstValidEmpty) return firstValidEmpty;
+    throw lastError || new Error(`Kunne ikke hente ${source.type}`);
+  }
+
+  function pointIntersectsFeature(point, feature) {
+    if (!feature || !feature.geometry) return false;
+    const type = feature.geometry.type;
+    try {
+      if (type === "Polygon" || type === "MultiPolygon") {
+        return turf.booleanPointInPolygon(point, feature, { ignoreBoundary:false });
+      }
+      if (type === "LineString" || type === "MultiLineString") {
+        try {
+          return turf.pointToLineDistance(point, feature, { units:"meters" }) <= 10;
+        } catch (_) {
+          return turf.booleanPointOnLine(point, feature, { epsilon: 1e-8 });
+        }
+      }
+      if (type === "Point") {
+        return turf.distance(point, feature, { units:"meters" }) < 10;
+      }
+      if (type === "MultiPoint") {
+        return feature.geometry.coordinates.some(coords => turf.distance(point, turf.point(coords), { units:"meters" }) < 10);
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
+  }
+
+  function featureIsActiveProposal(feature) {
+    const p = feature.properties || {};
+    const startDate = parseDateValue(findProp(p, FIELD_CANDIDATES.start));
+    const endDate = parseDateValue(findProp(p, FIELD_CANDIDATES.end));
+    if (!startDate || !endDate) return true;
+    return startDate <= TODAY && endDate >= TODAY;
+  }
+
+  function enrichFeature(feature, source, layerName, index) {
+    const p = feature.properties || {};
+    const planId = cleanText(firstNonEmpty(findProp(p, FIELD_CANDIDATES.id), feature.id, index + 1), "");
+    const useText = cleanText(findProp(p, FIELD_CANDIDATES.use), "");
+    const buildingText = cleanText(findProp(p, FIELD_CANDIDATES.building), "");
+    const decisionText = cleanText(findProp(p, FIELD_CANDIDATES.decision), "");
+    const purposeText = cleanText(findProp(p, FIELD_CANDIDATES.purpose), "");
+    const applicantText = cleanText(findProp(p, FIELD_CANDIDATES.applicant), "");
+    const relationText = cleanText(findProp(p, FIELD_CANDIDATES.relation), "");
+    const subareaText = cleanText(findProp(p, FIELD_CANDIDATES.subarea), "");
+    const buildingFieldText = cleanText(findProp(p, FIELD_CANDIDATES.buildingField), "");
+    const title = cleanText(firstNonEmpty(findProp(p, FIELD_CANDIDATES.title), subareaText, buildingFieldText, useText, purposeText, decisionText, `${source.type} ${index + 1}`), "Uden titel");
+    const municipality = cleanText(findProp(p, FIELD_CANDIDATES.municipality), "Ikke oplyst");
+    const zone = normalizeZone(findProp(p, FIELD_CANDIDATES.zone));
+    const urlRaw = findProp(p, FIELD_CANDIDATES.url);
+    const startDate = parseDateValue(findProp(p, FIELD_CANDIDATES.start));
+    const endDate = parseDateValue(findProp(p, FIELD_CANDIDATES.end));
+    const adoptedDate = parseDateValue(findProp(p, FIELD_CANDIDATES.adopted));
+    let dateText = "";
+    if (source.type === "Aktivt lokalplanforslag") dateText = [formatDate(startDate), formatDate(endDate)].filter(Boolean).join(" - ");
+    else dateText = formatDate(adoptedDate);
+
+    return {
+      key: `${source.type}_${layerName}_${index}_${String(planId).replace(/[^a-zA-Z0-9_-]/g, "_")}`,
+      type: source.type,
+      title,
+      municipality,
+      zone,
+      dateText,
+      planId,
+      urlRaw,
+      sourceLayer: layerName,
+      color: source.color,
+      activeOnly: !!source.activeOnly,
+      adminTitle: source.adminTitle || "",
+      adminParagraph: source.adminParagraph || "",
+      adminFamilyKey: source.adminFamilyKey || "",
+      useText,
+      buildingText,
+      decisionText,
+      purposeText,
+      applicantText,
+      relationText,
+      subareaText,
+      buildingFieldText,
+      geojson: feature,
+      properties: p
+    };
+  }
+
+  async function runAddressLookup() {
+    if (!selectedAddress) return;
+    const lon = Number(selectedAddress.lon);
+    const lat = Number(selectedAddress.lat);
+    if (!Number.isFinite(lon) || !Number.isFinite(lat)) return;
+
+    allResults = [];
+    featureSource.clear();
+    featureLayerByKey.clear();
+    clearWmsResultLayers();
+    updateResultUi();
+    setStatus(`<span class="loader"></span>Undersøger planlag for adressen...`);
+    byId("useAddress").disabled = true;
+    byId("saveResult").disabled = true;
+
+    addressSource.clear();
+    addressMarker = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat])),
+      popupHtml: `<b>Valgt adresse</b><br>${escapeHtml(selectedAddress.text)}`
+    });
+    addressSource.addFeature(addressMarker);
+    map.getView().animate({ center: ol.proj.fromLonLat([lon, lat]), zoom: 16, duration: 250 });
+    openPopup(ol.proj.fromLonLat([lon, lat]), addressMarker.get("popupHtml"));
+
+    const point = turf.point([lon, lat]);
+    const failures = [];
+
+    for (const source of currentPlanSources()) {
+      setStatus(`<span class="loader"></span>Henter ${escapeHtml(source.type.toLowerCase())}...`);
+      try {
+        const layerData = await fetchLayerForPoint(source, lon, lat);
+        const matches = layerData.features
+          .filter(feature => feature && feature.geometry)
+          .filter(feature => !source.activeOnly || featureIsActiveProposal(feature))
+          .filter(feature => pointIntersectsFeature(point, feature))
+          .map((feature, index) => enrichFeature(feature, source, layerData.typeName, index));
+        allResults.push(...matches);
+      } catch (e) {
+        failures.push(source.type);
+        console.warn(source.type, e);
+      }
+    }
+
+    setStatus(
+      `${allResults.length.toLocaleString("da-DK")} relevante plantræf fundet for adressen.` +
+      (failures.length ? `<br>Bemærk: ${escapeHtml(failures.join(", "))} kunne ikke hentes i denne test.` : ""),
+      failures.length ? "" : "ok"
+    );
+    byId("useAddress").disabled = false;
+    byId("saveResult").disabled = allResults.length === 0;
+    updateResultUi({ zoom:true });
+  }
+
+  function filterResults() {
+    const types = selectedValues("typeFilter");
+    const adminKeys = new Set(selectedAdminFamilies());
+    return allResults.filter(item => {
+      const typeOk = types.includes(item.type);
+      const adminOk = item.type !== "Administrativ retningslinje" || adminKeys.has(item.adminFamilyKey);
+      return typeOk && adminOk;
+    });
+  }
+
+  function updateResultUi({ zoom = false } = {}) {
+    visibleResults = filterResults();
+    drawResults(visibleResults);
+    updateCards(visibleResults);
+    updateTable(visibleResults);
+    updateKpis(visibleResults);
+    updateAnswer(visibleResults);
+    updateInterpretationReport(visibleResults);
+    updateLegend(visibleResults);
+    if (zoom) zoomToVisible(visibleResults);
+  }
+
+  function drawResults(items) {
+    featureSource.clear();
+    featureLayerByKey.clear();
+    clearWmsResultLayers();
+    closePopup();
+    syncWmsResultLayers(items);
+
+    items.forEach(item => {
+      const features = geoJsonFeaturesToOl(item);
+      featureSource.addFeatures(features);
+      featureLayerByKey.set(item.key, features);
+    });
+  }
+
+  function makePopup(item) {
+    const link = asLink(item.urlRaw);
+    return `
+      <div>
+        <div class="popup-title">${escapeHtml(item.title || "Uden titel")}</div>
+        <b>Type:</b> ${escapeHtml(item.type)}<br>
+        ${item.adminTitle ? `<b>Korttema:</b> ${escapeHtml(item.adminTitle)}<br><b>Paragraf:</b> ${escapeHtml(item.adminParagraph)}<br>` : ""}
+        <b>Kommune:</b> ${escapeHtml(item.municipality)}<br>
+        <b>Zonestatus:</b> ${escapeHtml(item.zone)}<br>
+        <b>Dato:</b> ${escapeHtml(item.dateText || "Ikke oplyst")}<br>
+        <b>Plan-id:</b> ${escapeHtml(item.planId || "Ikke oplyst")}
+        ${link ? `<br><br>${link}` : ""}
+      </div>`;
+  }
+
+  function updateCards(items) {
+    const wrap = byId("resultCards");
+    if (!selectedAddress) {
+      wrap.innerHTML = `<div class="empty-state">Ingen adresse valgt endnu.</div>`;
+      return;
+    }
+    if (!items.length) {
+      wrap.innerHTML = `<div class="empty-state">Ingen plantræf i den aktuelle visning.</div>`;
+      return;
+    }
+    wrap.innerHTML = items.map(item => `
+      <div class="result-card" data-card-key="${escapeHtml(item.key)}">
+        <div class="result-head">
+          <p class="result-title">${escapeHtml(item.title)}</p>
+          <span class="result-type">${escapeHtml(item.type)}</span>
+        </div>
+        <div class="result-meta">
+          ${item.adminTitle ? `Korttema: ${escapeHtml(item.adminTitle)}<br>Paragraf: ${escapeHtml(item.adminParagraph)}<br>` : ""}
+          Kommune: ${escapeHtml(item.municipality)}<br>
+          Zonestatus: ${escapeHtml(item.zone)}<br>
+          ${item.relationText ? `Relation til lokalplan: ${escapeHtml(item.relationText)}<br>` : ""}
+          ${item.subareaText ? `Delområde: ${escapeHtml(item.subareaText)}<br>` : ""}
+          ${item.buildingFieldText ? `Byggefelt: ${escapeHtml(item.buildingFieldText)}<br>` : ""}
+          ${item.useText ? `Anvendelse: ${escapeHtml(item.useText)}<br>` : ""}
+          ${item.buildingText ? `Bebyggelse: ${escapeHtml(item.buildingText)}<br>` : ""}
+          ${item.decisionText ? `Afgørelse/status: ${escapeHtml(item.decisionText)}<br>` : ""}
+          ${item.dateText ? `Dato: ${escapeHtml(item.dateText)}<br>` : ""}
+          ${item.planId ? `Plan-id: ${escapeHtml(item.planId)}<br>` : ""}
+          ${asLink(item.urlRaw)}
+        </div>
+      </div>
+    `).join("");
+
+    wrap.querySelectorAll(".result-card").forEach(card => {
+      card.addEventListener("click", () => zoomToResult(card.getAttribute("data-card-key")));
+    });
+  }
+
+  function updateTable(items) {
+    const rows = items.map(item => ({
+      key:item.key,
+      type:escapeHtml(item.type),
+      title:escapeHtml(item.title),
+      municipality:escapeHtml(item.municipality),
+      zone:escapeHtml(item.zone),
+      centralInfo:escapeHtml(centralInfoText(item)),
+      dateText:escapeHtml(item.dateText || ""),
+      planId:escapeHtml(item.planId || ""),
+      sourceLayer:escapeHtml(item.sourceLayer || ""),
+      link:asLink(item.urlRaw)
+    }));
+    table.clear();
+    table.rows.add(rows);
+    table.draw(false);
+    $("#resultTable tbody tr").removeClass("row-selected");
+  }
+
+
+  function centralInfoText(item) {
+    const values = [];
+    if (item.relationText) values.push(`Relation til lokalplan: ${item.relationText}`);
+    if (item.subareaText) values.push(`Delområde: ${item.subareaText}`);
+    if (item.buildingFieldText) values.push(`Byggefelt: ${item.buildingFieldText}`);
+    if (item.useText) values.push(`Anvendelse: ${item.useText}`);
+    if (item.zone && item.zone !== "Ikke oplyst") values.push(`Zone: ${item.zone}`);
+    if (item.buildingText) values.push(`Bebyggelse: ${item.buildingText}`);
+    if (item.decisionText) values.push(`Afgørelse/status: ${item.decisionText}`);
+    if (item.purposeText && item.purposeText !== item.title) values.push(`Formål: ${item.purposeText}`);
+    return values.slice(0, 4).join(" · ");
+  }
+
+  function keyValueRows(item, extraRows = []) {
+    const rows = [
+      ["Type", item.type],
+      ["Kommune", item.municipality],
+      ["Zone", item.zone],
+      ["Relation til lokalplan", item.relationText],
+      ["Delområde", item.subareaText],
+      ["Byggefelt", item.buildingFieldText],
+      ["Anvendelse", item.useText],
+      ["Bebyggelse", item.buildingText],
+      ["Afgørelse", item.decisionText],
+      ["Formål", item.purposeText && item.purposeText !== item.title ? item.purposeText : ""],
+      ["Ansøger/ejer", item.applicantText],
+      ["Dato", item.dateText],
+      ["Plan-/sags-id", item.planId],
+      ["Korttema", item.adminTitle],
+      ["Paragraf", item.adminParagraph],
+      ["Lag", item.sourceLayer],
+      ...extraRows
+    ].filter(row => row[1] && String(row[1]).trim() && String(row[1]).trim() !== "Ikke oplyst");
+    if (!rows.length) return "";
+    return `<dl>${rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${k === "Link" ? asLink(v) : escapeHtml(v)}</dd>`).join("")}</dl>`;
+  }
+
+  function reportReasonText(item) {
+    if (item.type === "Vedtaget lokalplan") return "Adressen ligger inden for lokalplanens geografiske afgrænsning. Lokalplanen kan indeholde bindende regler for anvendelse, bebyggelse, veje, friarealer og andre forhold.";
+    if (item.type === "Aktivt lokalplanforslag") return "Adressen ligger inden for et lokalplanforslag. Plangrundlaget kan derfor være under ændring, og høringsfrister og dokumenter bør kontrolleres.";
+    if (item.type === "Lokalplandelområde") return "Delområdet er en underopdeling af en lokalplan. Bestemmelser for delområdet skal normalt læses sammen med lokalplanens generelle bestemmelser.";
+    if (item.type === "Byggefelt") return "Byggefeltet kan angive, hvor bebyggelse må eller forventes placeret inden for lokalplanområdet eller delområdet.";
+    if (item.type === "Vedtaget kommuneplanramme") return "Kommuneplanrammen beskriver den overordnede ramme for områdets anvendelse og kan være retningsgivende for senere lokalplanlægning.";
+    if (item.type === "Administrativ retningslinje") return "Retningslinjen viser et planhensyn eller en arealinteresse, som kommunen skal tage højde for i planlægningen.";
+    if (item.type === "Landzonetilladelse") return "Landzonetilladelsen er en konkret kommunal afgørelse. Eventuelle vilkår bør læses i selve afgørelsen og sammenholdes med zonestatus og øvrige planer.";
+    return "Adressen overlapper dette registrerede plantema i Plandata.";
+  }
+
+  function itemFactSentence(item) {
+    const facts = [];
+    if (item.useText) facts.push(`anvendelse: ${item.useText}`);
+    if (item.zone && item.zone !== "Ikke oplyst") facts.push(`zone: ${item.zone}`);
+    if (item.buildingText) facts.push(`bebyggelse: ${item.buildingText}`);
+    if (item.relationText) facts.push(`relation: ${item.relationText}`);
+    if (item.subareaText) facts.push(`delområde: ${item.subareaText}`);
+    if (item.buildingFieldText) facts.push(`byggefelt: ${item.buildingFieldText}`);
+    if (item.decisionText) facts.push(`afgørelse/status: ${item.decisionText}`);
+    if (item.dateText) facts.push(`dato: ${item.dateText}`);
+    if (!facts.length) return "Der er fundet et geografisk overlap med adressepunktet. De tilgængelige attributter vises nedenfor.";
+    return `Centrale oplysninger fra laget: ${facts.slice(0, 4).join(" · ")}.`;
+  }
+
+  function hitCardsHtml(items, emptyText) {
+    if (!items.length) return `<div class="report-empty-box">${escapeHtml(emptyText)}</div>`;
+    return `<div class="report-hit-grid">${items.map(item => `
+      <article class="report-hit-card">
+        <span class="report-hit-type">${escapeHtml(item.type)}</span>
+        <h4>${escapeHtml(item.title || "Uden titel")}</h4>
+        <p class="report-hit-summary">${escapeHtml(itemFactSentence(item))}</p>
+        ${keyValueRows(item, item.urlRaw ? [["Link", item.urlRaw]] : [])}
+        <p class="report-hit-why"><b>Hvorfor er dette relevant?</b> ${escapeHtml(reportReasonText(item))}</p>
+      </article>
+    `).join("")}</div>`;
+  }
+
+  function countPart(items, type, singular, pluralForm) {
+    const count = typeCount(items, type);
+    return count ? plural(count, singular, pluralForm) : "";
+  }
+
+
+  function plural(count, singular, pluralForm) {
+    return `${count} ${count === 1 ? singular : pluralForm}`;
+  }
+
+  function typeCount(items, type) {
+    return items.filter(item => item.type === type).length;
+  }
+
+  function uniqueValues(items, selector) {
+    return Array.from(new Set(items.map(selector).filter(value => value && value !== "Ikke oplyst"))).sort((a, b) => a.localeCompare(b, "da"));
+  }
+
+  function listHtml(values, emptyText = "Ikke oplyst") {
+    if (!values.length) return `<p>${escapeHtml(emptyText)}</p>`;
+    return `<ul>${values.map(value => `<li>${escapeHtml(value)}</li>`).join("")}</ul>`;
+  }
+
+  function relevantLinksForReport(items) {
+    const links = [
+      {
+        title: "Planinfo",
+        url: "https://www.plst.dk/planinfo",
+        text: "Samlet indgang til planlægning, vejledning og planinformation."
+      },
+      {
+        title: "Plandata.dk",
+        url: "https://www.plandata.dk/",
+        text: "Find og åbn de registrerede planer og plantemaer i Plandata."
+      },
+      {
+        title: "Kommuneplanlægning",
+        url: "https://www.plst.dk/plantemaer/kommuneplanlaegning",
+        text: "Læs om kommuneplanens rammer og retningslinjer."
+      },
+      {
+        title: "Lokalplanlægning",
+        url: "https://www.plst.dk/plantemaer/lokalplanlaegning",
+        text: "Læs om lokalplaner og deres betydning for anvendelse og byggeri."
+      }
+    ];
+
+    const hasDetail = items.some(item => normalize(item.adminTitle).includes("detailhandel"));
+    const hasClimate = items.some(item => normalize(item.adminTitle).includes("oversvommelse") || normalize(item.adminTitle).includes("erosion"));
+    const hasProduction = items.some(item => normalize(item.adminTitle).includes("produktion") || normalize(item.adminTitle).includes("konsekvens"));
+    const hasLandzone = items.some(item => item.type === "Landzonetilladelse" || item.zone === "Landzone");
+
+    if (hasLandzone) links.push({
+      title: "Landzone",
+      url: "https://www.plst.dk/plantemaer/landzone",
+      text: "Relevant, når analysen finder landzonetilladelser eller oplysninger om landzone."
+    });
+    if (hasDetail) links.push({
+      title: "Bymidter og detailhandel",
+      url: "https://www.plst.dk/plantemaer/bymidter",
+      text: "Relevant, når der er registreret detailhandelsretningslinjer."
+    });
+    if (hasClimate) links.push({
+      title: "Klimatilpasning",
+      url: "https://www.plst.dk/plantemaer/klima-/klimatilpasning",
+      text: "Relevant ved retningslinjer om oversvømmelse, erosion eller klimatilpasning."
+    });
+    if (hasProduction) links.push({
+      title: "Erhvervsområder og konsekvenszoner",
+      url: "https://www.plst.dk/plantemaer/produktionsvirksomheder",
+      text: "Relevant ved produktionsområder, transformationsområder eller konsekvensområder."
+    });
+    return links;
+  }
+
+
+  function planTypeExplainerHtml(kind) {
+    const explainers = {
+      kommuneplan: {
+        title: "Hjælp: Kommuneplanen – kommunens samlede plan",
+        body: [
+          "Kommuneplanen er kommunens overordnede plan for, hvordan kommunen skal udvikle sig fysisk. Den samler de store valg om byudvikling, boliger, erhverv, trafik, natur, landskab, klima og andre arealinteresser.",
+          "For en borger betyder kommuneplanen især, at den sætter retningen for, hvad kommunen kan planlægge for senere. Den fortæller derfor ofte noget om områdets langsigtede udvikling, men den er normalt mindre konkret end en lokalplan for den enkelte grund.",
+          "I planloven er kommuneplanen navnlig knyttet til reglerne om kommuneplanens indhold, herunder hovedstruktur, retningslinjer og rammer. Retningslinjer er især knyttet til § 11 a, mens kommuneplanrammer er knyttet til § 11 b."
+        ]
+      },
+      kommuneplanramme: {
+        title: "Hjælp: Kommuneplanramme – rammen for den senere lokalplan",
+        body: [
+          "En kommuneplanramme er et geografisk område i kommuneplanen. Rammen beskriver, hvad området overordnet må bruges til, for eksempel bolig, center, erhverv, offentlige formål eller rekreative formål.",
+          "Rammen kan også beskrive overordnede grænser for bebyggelse, for eksempel maksimal højde, bebyggelsesprocent, etageantal, friarealer eller særlige hensyn. Nye lokalplaner skal som udgangspunkt holde sig inden for kommuneplanrammen.",
+          "Som borger skal man være opmærksom på, at en kommuneplanramme ikke i sig selv nødvendigvis giver en konkret ret til at bygge. Den konkrete regulering findes ofte i lokalplanen, en byggetilladelse, en landzonetilladelse eller en anden afgørelse."
+        ]
+      },
+      lokalplan: {
+        title: "Hjælp: Lokalplan – den mest konkrete plan for et område",
+        body: [
+          "En lokalplan er den plantype, der normalt har størst praktisk betydning for en bestemt ejendom. Den gælder for et afgrænset område og kan fastlægge konkrete bestemmelser for, hvordan området må anvendes og bebygges.",
+          "En lokalplan kan for eksempel regulere, om der må være boliger eller erhverv, hvor højt der må bygges, hvor bygninger kan placeres, adgangsforhold, veje, parkering, grønne arealer og bevaringshensyn.",
+          "Lokalplaner er en del af planlovens system for kommunal planlægning. De skal passe ind i kommuneplanens rammer, men er typisk mere konkrete og bindende for den enkelte ejendom."
+        ]
+      },
+      lokalplanforslag: {
+        title: "Hjælp: Lokalplanforslag – en plan der endnu ikke er endeligt vedtaget",
+        body: [
+          "Et lokalplanforslag er et udkast til en lokalplan, som kommunen sender i offentlig høring, før planen eventuelt bliver endeligt vedtaget.",
+          "Hvis der findes et aktivt lokalplanforslag for adressen, kan det betyde, at reglerne for området er under ændring. Det er derfor vigtigt at se på høringsperioden og de konkrete forslagstekster.",
+          "Forslaget er ikke nødvendigvis endeligt, men det kan være meget relevant for en borger, fordi det viser, hvilken retning kommunen overvejer for området."
+        ]
+      },
+      lokalplandelomraade: {
+        title: "Hjælp: Lokalplandelområde – en del af en lokalplan",
+        body: [
+          "Et lokalplandelområde er en underopdeling af en lokalplan. Kommunen kan bruge delområder, når forskellige dele af samme lokalplanområde skal have forskellige regler.",
+          "For en borger betyder det, at man ikke kun skal læse lokalplanens generelle bestemmelser. Man skal også finde det delområde, hvor ejendommen ligger, fordi der kan gælde særlige regler netop dér.",
+          "Delområdet skal normalt læses sammen med den overordnede lokalplan og eventuelle byggefelter."
+        ]
+      },
+      byggefelt: {
+        title: "Hjælp: Byggefelt – hvor bebyggelse kan placeres",
+        body: [
+          "Et byggefelt er et afgrænset areal inden for en lokalplan eller et delområde, hvor bebyggelse kan være forudsat placeret.",
+          "For en borger kan byggefeltet være vigtigt, fordi det kan sige noget om, hvor på grunden eller i området der må bygges. Der kan samtidig være bestemmelser om højde, etageantal, omfang eller anvendelse.",
+          "Et byggefelt er ikke en selvstændig plan. Det skal læses sammen med lokalplanens øvrige bestemmelser og det relevante delområde."
+        ]
+      },
+      retningslinjer: {
+        title: "Hjælp: Kommuneplanretningslinjer – planhensyn og arealinteresser",
+        body: [
+          "Kommuneplanretningslinjer er kommunens retningslinjer for forskellige arealinteresser. Det kan for eksempel være detailhandel, støj, natur, landskab, lavbundsarealer, oversvømmelse, tekniske anlæg eller produktionsområder.",
+          "Retningslinjerne fortæller normalt ikke alene, hvad man konkret må bygge på en ejendom. De viser derimod planhensyn, som kommunen skal tage højde for i sin planlægning og sagsbehandling.",
+          "Mange af retningslinjerne er knyttet til planlovens § 11 a, der beskriver en række emner, som kommuneplanen skal indeholde retningslinjer for."
+        ]
+      },
+      landzone: {
+        title: "Hjælp: Landzonetilladelse – en konkret kommunal tilladelse i landzone",
+        body: [
+          "En landzonetilladelse er en konkret kommunal afgørelse efter planlovens landzoneregler. Den kan for eksempel handle om ny bebyggelse, ændret anvendelse eller udstykning i landzone.",
+          "For en borger er det vigtigt at skelne mellem planer og tilladelser. En lokalplan eller kommuneplanramme beskriver planlægningen for et område, mens en landzonetilladelse er en konkret afgørelse, der kan have vilkår.",
+          "Hvis analysen finder en landzonetilladelse, bør selve afgørelsen og dens vilkår kontrolleres, især hvis man overvejer byggeri eller ændret anvendelse."
+        ]
+      },
+      hierarchy: {
+        title: "Hjælp: Sådan skal planoplysningerne læses sammen",
+        body: [
+          "Planoplysningerne ligger i flere lag. Kommuneplanen og kommuneplanrammen viser den overordnede retning. Lokalplanen er typisk den mest konkrete plan for et område. Delområder og byggefelter er mere detaljerede dele af lokalplanen.",
+          "Kommuneplanretningslinjer viser særlige planhensyn eller arealinteresser, som kan have betydning for planlægning og sagsbehandling, men de er ikke altid konkrete byggeregler for den enkelte ejendom.",
+          "Landzonetilladelser skal læses lidt anderledes: De er konkrete afgørelser efter landzonereglerne og kan supplere planbilledet, særligt uden for byzone."
+        ]
+      }
+    };
+    const item = explainers[kind];
+    if (!item) return "";
+    return `
+      <div class="report-explainer">
+        <details>
+          <summary>${escapeHtml(item.title)}</summary>
+          <div class="report-explainer-body">
+            ${item.body.map((paragraph, index) => `<p${index === item.body.length - 1 ? ' class="law-note"' : ''}>${escapeHtml(paragraph)}</p>`).join("")}
+          </div>
+        </details>
+      </div>`;
+  }
+
+
+  function localplanRelationKey(item) {
+    return normalize(firstNonEmpty(item.relationText, item.planId, item.properties?.lokalplanid, item.properties?.planid, item.properties?.plan_id));
+  }
+
+  function localplanRelationSummary(localPlans, subareas, buildingFields) {
+    if (!subareas.length && !buildingFields.length) return "";
+    const localPlanKeys = new Map();
+    localPlans.forEach(lp => {
+      const keys = [lp.planId, lp.relationText, lp.properties?.planid, lp.properties?.lokalplanid]
+        .map(localValue => normalize(localValue))
+        .filter(Boolean);
+      keys.forEach(key => localPlanKeys.set(key, lp));
+    });
+
+    function relationLine(item) {
+      const key = localplanRelationKey(item);
+      const lp = key ? localPlanKeys.get(key) : null;
+      const relation = item.relationText || item.planId || "Ikke oplyst";
+      if (lp) return `${item.title || item.type} er registreret med relation til lokalplanen "${lp.title}" (${lp.planId || relation}).`;
+      return `${item.title || item.type} har relationsoplysningen ${relation}. Den bør sammenholdes med plan-id i den relevante lokalplan.`;
+    }
+
+    const lines = [];
+    subareas.slice(0, 8).forEach(item => lines.push(relationLine(item)));
+    buildingFields.slice(0, 8).forEach(item => lines.push(relationLine(item)));
+    return `<div class="report-relation-box">
+      <h4>Relation mellem lokalplan, delområder og byggefelter</h4>
+      <p>Delområder og byggefelter er ikke selvstændige planer på samme måde som en lokalplan. De er mere detaljerede registreringer, der skal læses sammen med den lokalplan, de hører til. Nedenfor vises den relation, der kan udledes af datamodellens relationsfelter.</p>
+      <ul>${lines.map(line => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
+    </div>`;
+  }
+
+  function makeReportConclusion(items) {
+    const parts = [
+      countPart(items, "Vedtaget lokalplan", "vedtaget lokalplan", "vedtagne lokalplaner"),
+      countPart(items, "Lokalplandelområde", "lokalplandelområde", "lokalplandelområder"),
+      countPart(items, "Byggefelt", "byggefelt", "byggefelter"),
+      countPart(items, "Aktivt lokalplanforslag", "aktivt lokalplanforslag", "aktive lokalplanforslag"),
+      countPart(items, "Vedtaget kommuneplanramme", "vedtaget kommuneplanramme", "vedtagne kommuneplanrammer"),
+      countPart(items, "Landzonetilladelse", "landzonetilladelse", "landzonetilladelser"),
+      countPart(items, "Administrativ retningslinje", "administrativ retningslinje", "administrative retningslinjer")
+    ].filter(Boolean);
+    if (!parts.length) return "Der er ikke fundet plantræf i den aktuelle visning. Det betyder ikke nødvendigvis, at adressen er uden planmæssige bindinger, men at de valgte datalag ikke gav træf for punktet.";
+    return `For adressen er der fundet ${parts.join(", ")}. De konkrete fund er opdelt nedenfor, så lokalplaner, kommuneplanrammer, landzonetilladelser og administrative retningslinjer kan læses hver for sig. Start med resumeet og opmærksomhedspunkterne, og brug derefter de tematiske afsnit til at se de konkrete oplysninger fra Plandata.`;
+  }
+
+  function formatNumber(value) {
+    const n = Number(value || 0);
+    return Number.isFinite(n) ? n.toLocaleString("da-DK") : "0";
+  }
+
+  function overviewTileHtml(label, count) {
+    return `<div class="report-overview-tile"><strong>${formatNumber(count)}</strong><span>${escapeHtml(label)}</span></div>`;
+  }
+
+  function makeAttentionPoints(groups) {
+    const points = [];
+    if (groups.proposals.length) points.push(`<b>Aktivt lokalplanforslag:</b> Plangrundlaget kan være under ændring. Kontroller høringsfrist og planforslagets indhold.`);
+    if (groups.localPlans.length && (groups.subareas.length || groups.buildingFields.length)) points.push(`<b>Læs lokalplanen i flere lag:</b> Der er både lokalplan og ${groups.subareas.length ? "delområde" : ""}${groups.subareas.length && groups.buildingFields.length ? " samt " : ""}${groups.buildingFields.length ? "byggefelt" : ""}. Start med lokalplanen og gå derefter til de mere detaljerede registreringer.`);
+    if (groups.buildingFields.length) points.push(`<b>Byggefelt fundet:</b> Byggefeltet kan være centralt for, hvor bebyggelse må placeres.`);
+    if (groups.landzonePermits.length) points.push(`<b>Landzonetilladelse fundet:</b> Der kan være en konkret kommunal afgørelse med vilkår. Åbn afgørelsen, hvis der findes link.`);
+    if (groups.frames.length) points.push(`<b>Kommuneplanramme fundet:</b> Rammen viser den overordnede anvendelse og kan indeholde rammer for bebyggelse.`);
+    if (groups.guidelines.length) points.push(`<b>Administrative retningslinjer:</b> Der er planhensyn eller arealinteresser, som kan være relevante ved planlægning eller sagsbehandling.`);
+    if (!points.length) points.push("Der er ikke fundet konkrete plantræf i den aktuelle visning. Prøv eventuelt at slå flere plantyper til i venstre panel.");
+    return points;
+  }
+
+  function themeSectionHtml({ id, title, count, intro, items, emptyText, explainers = [], extraHtml = "" }) {
+    return `
+      <section id="${escapeHtml(id)}" class="report-theme-section">
+        <div class="report-theme-header">
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(intro)}</p>
+          </div>
+          <span class="report-section-count">${formatNumber(count)} fund</span>
+        </div>
+        <div class="report-theme-body">
+          <div class="report-subheading">Konkrete overlap på adressen</div>
+          ${hitCardsHtml(items, emptyText)}
+          ${extraHtml}
+          ${explainers.map(kind => planTypeExplainerHtml(kind)).join("")}
+        </div>
+      </section>`;
+  }
+
+  function updateInterpretationReport(items) {
+    const wrap = byId("interpretationReport");
+    if (!wrap) return;
+    if (!selectedAddress) {
+      wrap.innerHTML = `
+        <h2>Fortolkende rapport</h2>
+        <p class="report-muted">Søg på en adresse og kør analysen for at få en samlet, fortolkende læsning af plangrundlaget.</p>
+      `;
+      return;
+    }
+
+    const groups = {
+      localPlans: items.filter(item => item.type === "Vedtaget lokalplan"),
+      proposals: items.filter(item => item.type === "Aktivt lokalplanforslag"),
+      subareas: items.filter(item => item.type === "Lokalplandelområde"),
+      buildingFields: items.filter(item => item.type === "Byggefelt"),
+      frames: items.filter(item => item.type === "Vedtaget kommuneplanramme"),
+      guidelines: items.filter(item => item.type === "Administrativ retningslinje"),
+      landzonePermits: items.filter(item => item.type === "Landzonetilladelse")
+    };
+    const zones = uniqueValues(items, item => item.zone);
+    const municipalities = uniqueValues(items, item => item.municipality);
+    const guidelineThemes = uniqueValues(groups.guidelines, item => item.adminTitle || item.title);
+    const links = relevantLinksForReport(items);
+    const localplanItems = groups.localPlans.concat(groups.subareas, groups.buildingFields, groups.proposals);
+    const attentionPoints = makeAttentionPoints(groups);
+    const total = items.length;
+
+    wrap.innerHTML = `
+      <div class="report-topline">
+        <div>
+          <h2>Fortolkende rapport</h2>
+          <p class="report-muted">Automatisk planresume for den valgte adresse.</p>
+        </div>
+        <span class="report-address-pill">${escapeHtml(selectedAddress.text)}</span>
+      </div>
+
+      <div class="report-warning">
+        Rapporten er en automatisk, vejledende fortolkning af de plantræf, dashboardet har fundet. Den er ikke en juridisk afgørelse. Ved konkrete projekter bør oplysningerne kontrolleres i de originale planer, i Plandata og hos kommunen.
+      </div>
+
+      <section class="report-summary-card">
+        <h3>Resume</h3>
+        <p>${escapeHtml(makeReportConclusion(items))}</p>
+      </section>
+
+      <h3>Overblik</h3>
+      <div class="report-overview-grid">
+        ${overviewTileHtml("Samlede fund", total)}
+        ${overviewTileHtml("Lokalplaner", groups.localPlans.length)}
+        ${overviewTileHtml("Delområder", groups.subareas.length)}
+        ${overviewTileHtml("Byggefelter", groups.buildingFields.length)}
+        ${overviewTileHtml("Lokalplanforslag", groups.proposals.length)}
+        ${overviewTileHtml("Kommuneplanrammer", groups.frames.length)}
+        ${overviewTileHtml("Landzonetilladelser", groups.landzonePermits.length)}
+        ${overviewTileHtml("Retningslinjer", groups.guidelines.length)}
+      </div>
+
+      <section class="report-attention">
+        <h3>Vigtigste opmærksomhedspunkter</h3>
+        <ul class="attention-list">${attentionPoints.map(point => `<li>${point}</li>`).join("")}</ul>
+      </section>
+
+      <nav class="report-section-nav" aria-label="Rapportafsnit">
+        <a href="#rapport-lokalplan">Lokalplaner</a>
+        <a href="#rapport-kommuneplan">Kommuneplan</a>
+        <a href="#rapport-landzone">Landzone</a>
+        <a href="#rapport-retningslinjer">Retningslinjer</a>
+        <a href="#rapport-zone">Zone og kontekst</a>
+      </nav>
+
+      ${themeSectionHtml({
+        id:"rapport-lokalplan",
+        title:"Lokalplaner, delområder, byggefelter og planforslag",
+        count:localplanItems.length,
+        intro:"Her vises de fund, der typisk har størst konkret betydning for ejendommen. Lokalplanen læses først, derefter eventuelle delområder og byggefelter.",
+        items:localplanItems,
+        emptyText:"Ingen lokalplaner, delområder, byggefelter eller planforslag i den aktuelle visning.",
+        explainers:["lokalplan", "lokalplandelomraade", "byggefelt", "lokalplanforslag", "hierarchy"],
+        extraHtml:localplanRelationSummary(groups.localPlans, groups.subareas, groups.buildingFields)
+      })}
+
+      ${themeSectionHtml({
+        id:"rapport-kommuneplan",
+        title:"Kommuneplan og kommuneplanrammer",
+        count:groups.frames.length,
+        intro:"Kommuneplanrammen viser den overordnede ramme for områdets anvendelse og kan indeholde rammer for fx bebyggelsesprocent, højde, friarealer og særlige hensyn.",
+        items:groups.frames,
+        emptyText:"Ingen kommuneplanrammer i den aktuelle visning.",
+        explainers:["kommuneplan", "kommuneplanramme"]
+      })}
+
+      ${themeSectionHtml({
+        id:"rapport-landzone",
+        title:"Landzonetilladelser",
+        count:groups.landzonePermits.length,
+        intro:"Landzonetilladelser er konkrete kommunale afgørelser. Hvis der findes et overlap, bør afgørelsen og eventuelle vilkår kontrolleres særskilt.",
+        items:groups.landzonePermits,
+        emptyText:"Ingen landzonetilladelser i den aktuelle visning.",
+        explainers:["landzone"]
+      })}
+
+      ${themeSectionHtml({
+        id:"rapport-retningslinjer",
+        title:"Kommuneplanretningslinjer / administrative retningslinjer",
+        count:groups.guidelines.length,
+        intro:"Retningslinjerne viser arealinteresser og planhensyn, der kan være relevante for adressen. De er ofte knyttet til planlovens § 11 a.",
+        items:groups.guidelines,
+        emptyText:"Ingen retningslinjetemaer i den aktuelle visning.",
+        explainers:["retningslinjer"],
+        extraHtml:groups.guidelines.length ? `<div class="report-relation-box"><h4>Fundne retningslinjetemaer</h4>${listHtml(guidelineThemes, "Ingen retningslinjetemaer i den aktuelle visning.")}</div>` : ""
+      })}
+
+      <section id="rapport-zone" class="report-theme-section">
+        <div class="report-theme-header">
+          <div>
+            <h3>Zone og geografisk kontekst</h3>
+            <p>Zonestatus og kommuneoplysninger hjælper med at sætte de konkrete plantræf i geografisk og administrativ sammenhæng.</p>
+          </div>
+          <span class="report-section-count">${formatNumber(zones.length)} zoner</span>
+        </div>
+        <div class="report-theme-body">
+          <div class="report-subheading">Registreret zonestatus i de fundne plantræf</div>
+          ${listHtml(zones, "Zonestatus er ikke oplyst i de fundne plantræf.")}
+          <div class="report-subheading">Kommunal kontekst</div>
+          ${listHtml(municipalities, "Kommune er ikke oplyst i de fundne plantræf.")}
+        </div>
+      </section>
+
+      <section class="report-theme-section">
+        <div class="report-theme-header">
+          <div>
+            <h3>Videre læsning og kontrol</h3>
+            <p>Brug links til at kontrollere planoplysningerne i de officielle kilder.</p>
+          </div>
+        </div>
+        <div class="report-theme-body">
+          <div class="link-grid">
+            ${links.map(link => `
+              <div class="link-card">
+                <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.title)}</a>
+                <span>${escapeHtml(link.text)}</span>
+              </div>
+            `).join("")}
+            <div class="link-card">
+              <a href="https://www.retsinformation.dk/" target="_blank" rel="noopener">Planloven på Retsinformation</a>
+              <span>Brug Retsinformation til at kontrollere den gældende lovtekst, blandt andet planlovens regler om kommuneplanlægning, lokalplanlægning og landzonetilladelser.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function updateKpis(items) {
+    // KPI-boksene er fjernet efter feedback. Funktionen bevares som no-op
+    // for at undgå at røre unødigt ved resten af flowet.
+    return;
+  }
+
+  function updateAnswer(items) {
+    const el = byId("answerText");
+    const linkWrap = byId("planOverviewLinkWrap");
+    if (!selectedAddress) {
+      el.textContent = "Søg på en adresse for at få vist, hvilke planer der gælder for stedet.";
+      if (linkWrap) linkWrap.classList.remove("visible");
+      return;
+    }
+    if (linkWrap) linkWrap.classList.add("visible");
+
+    const counts = new Map();
+    items.forEach(item => counts.set(item.type, (counts.get(item.type) || 0) + 1));
+    const parts = Array.from(counts.entries()).map(([type, count]) => `${count} ${type.toLowerCase()}${count === 1 ? "" : "er"}`);
+    const zones = Array.from(new Set(items.map(x => x.zone).filter(z => z && z !== "Ikke oplyst")));
+
+    if (!items.length) {
+      el.textContent = `Der blev ikke fundet plantræf for ${selectedAddress.text} i de valgte plantyper.`;
+      return;
+    }
+
+    el.textContent = `For ${selectedAddress.text} er der fundet ${parts.join(", ")}.` +
+      (zones.length ? ` Den registrerede zonestatus i plantræffene er: ${zones.join(", ")}.` : " Zonestatus er ikke oplyst i de fundne plantræf.");
+  }
+
+  function updateLegend(items) {
+    const legend = byId("legend");
+    if (!legend) return;
+    const layers = Array.from(new Map(items.map(item => [wmsLayerName(item.sourceLayer), item])).values())
+      .filter(item => wmsLayerName(item.sourceLayer));
+    const rows = layers.map(item => {
+      const title = item.adminTitle || item.type;
+      const subtitle = item.adminParagraph ? `${item.adminParagraph} · ${item.type}` : item.type;
+      return `
+        <div class="legend-row wms">
+          <img class="legend-img" src="${wmsLegendUrl(item.sourceLayer)}" alt="Signatur for ${escapeHtml(title)}" onerror="this.style.display='none'; const s=this.parentElement.querySelector('.legend-swatch'); if(s) s.style.display='inline-block';" />
+          <span class="legend-swatch" style="background:${item.color}; display:none;"></span>
+          <span class="legend-label">${escapeHtml(title)}<small>${escapeHtml(subtitle)}</small></span>
+        </div>`;
+    }).join("");
+    legend.innerHTML = `<b>Signatur fra Plandata.dk WMS</b>${rows || "<span>Ingen plantræf i visningen</span>"}`;
+  }
+
+  function zoomToVisible(items) {
+    const extent = extentForItems(items);
+    if (!extent) return;
+    map.getView().fit(extent, {
+      padding: [45, 45, 45, 45],
+      maxZoom: 16,
+      duration: 250
+    });
+  }
+
+  function zoomToResult(key) {
+    switchTab("mapTab");
+    const features = featureLayerByKey.get(key);
+    if (!features || !features.length) return;
+    const extent = ol.extent.createEmpty();
+    features.forEach(feature => ol.extent.extend(extent, feature.getGeometry().getExtent()));
+    map.getView().fit(extent, { padding: [55, 55, 55, 55], maxZoom: 16, duration: 250 });
+    const feature = features[0];
+    const geometry = feature.getGeometry();
+    const coordinate = geometry.getType() === "Point" ? geometry.getCoordinates() : ol.extent.getCenter(geometry.getExtent());
+    window.setTimeout(() => openPopup(coordinate, feature.get("popupHtml")), 260);
+  }
+
+  async function searchAddresses(query) {
+    const q = query.trim();
+    if (q.length < 3) {
+      hideSuggestions();
+      return;
+    }
+    try {
+      const url = "https://api.dataforsyningen.dk/adresser/autocomplete?" + new URLSearchParams({ q, per_side:"8" }).toString();
+      const suggestions = await fetchJson(url);
+      renderSuggestions(Array.isArray(suggestions) ? suggestions : []);
+    } catch (e) {
+      console.warn("Adressesøgning fejlede", e);
+      hideSuggestions();
+    }
+  }
+
+  function renderSuggestions(items) {
+    const box = byId("suggestions");
+    const usable = items.map(item => {
+      const data = item.adresse || item.data || item;
+      const x = data.x || data.lon || data.lng;
+      const y = data.y || data.lat;
+      return {
+        text: item.tekst || data.betegnelse || data.adressebetegnelse || "Adresse",
+        lon: Number(x),
+        lat: Number(y),
+        raw:item
+      };
+    }).filter(item => Number.isFinite(item.lon) && Number.isFinite(item.lat));
+
+    if (!usable.length) {
+      hideSuggestions();
+      return;
+    }
+    box.innerHTML = usable.map((item, index) => `<div class="suggestion" data-index="${index}">${escapeHtml(item.text)}</div>`).join("");
+    box.style.display = "block";
+    box.querySelectorAll(".suggestion").forEach(el => {
+      el.addEventListener("click", () => {
+        const item = usable[Number(el.getAttribute("data-index"))];
+        chooseAddress(item);
+      });
+    });
+  }
+
+  function hideSuggestions() {
+    const box = byId("suggestions");
+    box.style.display = "none";
+    box.innerHTML = "";
+  }
+
+  function chooseAddress(item) {
+    selectedAddress = item;
+    byId("addressSearch").value = item.text;
+    byId("useAddress").disabled = false;
+    hideSuggestions();
+    setStatus("Adresse valgt. Klik på Vis planer for at hente plantræf.");
+  }
+
+  function clearAll() {
+    selectedAddress = null;
+    allResults = [];
+    visibleResults = [];
+    byId("addressSearch").value = "";
+    byId("useAddress").disabled = true;
+    byId("saveResult").disabled = true;
+    hideSuggestions();
+    addressSource.clear();
+    addressMarker = null;
+    featureSource.clear();
+    featureLayerByKey.clear();
+    closePopup();
+    setStatus("Vælg en adresse for at starte.");
+    map.getView().animate({ center: ol.proj.fromLonLat([10.2, 56.1]), zoom: 7, duration: 250 });
+    updateResultUi();
+  }
+
+  function saveResult() {
+    if (!selectedAddress) return;
+    const payload = {
+      adresse: selectedAddress.text,
+      koordinat: { lon: selectedAddress.lon, lat: selectedAddress.lat },
+      dannet: new Date().toISOString(),
+      resultater: allResults.map(item => ({
+        type:item.type,
+        titel:item.title,
+        kommune:item.municipality,
+        zonestatus:item.zone,
+        anvendelse:item.useText || "",
+        bebyggelse:item.buildingText || "",
+        afgorelse:item.decisionText || "",
+        formaal:item.purposeText || "",
+        dato:item.dateText,
+        planid:item.planId,
+        korttema:item.adminTitle || "",
+        paragraf:item.adminParagraph || "",
+        link:String(item.urlRaw || ""),
+        lag:item.sourceLayer
+      }))
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "planer_for_adresse.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+
+  function switchTab(targetId) {
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-tab-target") === targetId);
+    });
+    document.querySelectorAll(".tab-panel").forEach(panel => {
+      panel.classList.toggle("active", panel.id === targetId);
+    });
+    window.setTimeout(() => {
+      if (map) map.updateSize();
+      if (table && table.columns) table.columns.adjust().draw(false);
+    }, 80);
+  }
+
+  function plantypeCardText(card) {
+    return normalize(card.textContent || "");
+  }
+
+  function updatePlantypeSearch() {
+    const input = byId("plantypeSearch");
+    if (!input) return;
+
+    const terms = normalize(input.value).split(/\s+/).filter(Boolean);
+    const cards = Array.from(document.querySelectorAll(".plantype-card"));
+    let visible = 0;
+
+    cards.forEach(card => {
+      const text = plantypeCardText(card);
+      const match = !terms.length || terms.every(term => text.includes(term));
+      card.classList.toggle("search-hidden", !match);
+      if (match) visible += 1;
+    });
+
+    const count = byId("plantypeSearchCount");
+    if (count) {
+      count.textContent = terms.length
+        ? `Viser ${visible} af ${cards.length} plantypebokse.`
+        : `Viser alle ${cards.length} plantypebokse.`;
+    }
+
+    const noResults = byId("plantypeNoResults");
+    if (noResults) noResults.classList.toggle("active", terms.length > 0 && visible === 0);
+  }
+
+  function bindPlantypeSearch() {
+    const input = byId("plantypeSearch");
+    if (!input) return;
+    input.addEventListener("input", updatePlantypeSearch);
+    const clear = byId("clearPlantypeSearch");
+    if (clear) {
+      clear.addEventListener("click", () => {
+        input.value = "";
+        updatePlantypeSearch();
+        input.focus();
+      });
+    }
+    updatePlantypeSearch();
+  }
+
+  function bindUi() {
+    const debouncedSearch = debounce(() => searchAddresses(byId("addressSearch").value), 250);
+    byId("addressSearch").addEventListener("input", () => {
+      selectedAddress = null;
+      byId("useAddress").disabled = true;
+      debouncedSearch();
+    });
+    byId("useAddress").addEventListener("click", runAddressLookup);
+    byId("clearAll").addEventListener("click", clearAll);
+    byId("saveResult").addEventListener("click", saveResult);
+    byId("openPlanOverview").addEventListener("click", () => switchTab("overviewTab"));
+    byId("openReport").addEventListener("click", () => switchTab("reportTab"));
+    byId("openPlantypeInfo").addEventListener("click", () => switchTab("learnTab"));
+    document.querySelectorAll(".tab-button").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab-target")));
+    });
+    byId("typeFilter").addEventListener("change", () => updateResultUi({ zoom:false }));
+    document.querySelectorAll(".overview-type-toggle").forEach(cb => {
+      cb.addEventListener("change", () => { syncTypeFilterFromCheckboxes(); updateResultUi({ zoom:false }); });
+    });
+    byId("selectAllTypes").addEventListener("click", () => {
+      setOverviewTypeCheckboxes(true);
+      document.querySelectorAll(".admin-layer-toggle").forEach(cb => { cb.checked = true; });
+      updateAdminLayerSummary();
+      updateResultUi();
+    });
+    byId("clearTypes").addEventListener("click", () => {
+      setOverviewTypeCheckboxes(false);
+      document.querySelectorAll(".admin-layer-toggle").forEach(cb => { cb.checked = false; });
+      updateAdminLayerSummary();
+      updateResultUi();
+    });
+    byId("selectAllAdminLayers").addEventListener("click", () => {
+      document.querySelectorAll(".admin-layer-toggle").forEach(cb => { cb.checked = true; });
+      updateAdminLayerSummary();
+      updateResultUi();
+    });
+    byId("clearAdminLayers").addEventListener("click", () => {
+      document.querySelectorAll(".admin-layer-toggle").forEach(cb => { cb.checked = false; });
+      updateAdminLayerSummary();
+      updateResultUi();
+    });
+    document.querySelectorAll(".admin-layer-toggle").forEach(cb => {
+      cb.addEventListener("change", () => { updateAdminLayerSummary(); updateResultUi(); });
+    });
+
+    $("#resultTable tbody").on("click", "tr", function() {
+      const rowData = table.row(this).data();
+      if (!rowData || !rowData.key) return;
+      $("#resultTable tbody tr").removeClass("row-selected");
+      $(this).addClass("row-selected");
+      zoomToResult(rowData.key);
+    });
+
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".search-box")) hideSuggestions();
+    });
+    window.addEventListener("resize", () => {
+      if (map) map.updateSize();
+      if (table && table.columns) table.columns.adjust().draw(false);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderOverviewTypeSelector();
+    renderAdminLayerSelector();
+    initMap();
+    initTable();
+    bindPlantypeSearch();
+    bindUi();
+    updateResultUi();
+  });
+})();
+</script>
+</body>
+</html>
